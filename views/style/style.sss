@@ -1,0 +1,189 @@
+@import url('https://cdn.jsdelivr.net/npm/normalize.css')
+// web fonts
+
+// base
+:root
+	--background-color: black
+	--foreground-color: white
+	--link-color: lightskyblue
+	--visited-color: #dda0dd
+	--border-style: thin solid
+	--visited-negative: #225f22
+	--font-size: medium
+	--link-pad: 0.5em
+	--layout-pad: 1em
+	background: var(--background-color)
+	color: var(--foreground-color)
+	font: menu
+	font-size: var(--font-size)
+	line-height: 1.6
+	text-align: justify
+
+h1
+, h2
+, h3
+, h4
+, h5
+, h6
+	margin: 0
+
+*
+	box-sizing: border-box
+
+:visited
+	color: var(--visited-color)
+
+a
+	color: var(--link-color)
+	text-decoration: none
+
+img
+	max-width: 100%
+
+object[type='image/svg+xml']
+	width: 100%
+
+// layout
+body
+	display: flex
+	flex-flow: column
+	align-items: center
+	min-height: 100vh
+	& > *
+		flex: auto
+		justify-content: space-between
+	& > header
+	, & > footer
+		text-align: center
+		width: 100%
+	& > header
+		border-bottom: var(--border-style)
+	& > footer
+		border-top: var(--border-style)
+
+.banner
+	padding: var(--layout-pad)
+
+main
+	margin: var(--layout-pad)
+
+nav
+	& li
+		list-style: none
+	& ul
+		margin: 0
+		padding: 0
+
+nav a
+, .articles footer > a
+	display: block
+	border: var(--border-style)
+
+.articles footer > a
+	text-align: center
+
+nav a
+, #search
+, .articles footer > a
+	padding: var(--link-pad)
+
+button
+, input
+	border: var(--border-style)
+	color: var(--foreground-color)
+	background: var(--background-color)
+
+form[role='search']
+	display: flex
+
+#search
+	flex: auto
+
+// main
+nav a
+	&:focus
+	, &:hover
+		&::before
+			content: 'cd ~/'
+
+body > header
+	font-size: var(--font-size)
+
+body > header
+, .title
+	& a:focus
+	, & a:hover
+		&::after
+			content: '_'
+			animation: 0.5s ease-in infinite alternate pulse
+			font-weight: bold
+
+header .title
+	font-weight: bold
+	font-size: 1em
+	padding: var(--link-pad) 0
+
+.title a
+	color: var(--link-color)
+
+.banner
+	text-align: center
+	width: 100%
+	color: var(--background-color)
+	background: var(--foreground-color)
+	& > .title a
+		color: var(--visited-negative)
+
+.logo
+	border-radius: 50%
+
+// animation
+@keyframes pulse
+	to
+		color: transparent
+
+// media queries
+@media (min-width: 30em)
+	body
+		& > header
+			font-size: larger
+	.container
+		margin: 0 var(--layout-pad)
+	.articles
+		margin: -var(--link-pad)
+		& > section
+			margin: var(--link-pad)
+	header .title
+		text-align: left
+	header > .container
+	, nav
+	, nav ul
+	, .articles
+		display: flex
+		flex-flow: row wrap
+	header > .container
+	, nav
+	, nav ul
+		align-items: baseline
+		& > *
+			flex: auto
+	.articles > *
+		flex: 1 1 20em
+	nav form
+		align-self: stretch
+	object[type='image/svg+xml']
+		float: left
+		max-width: 15em
+	.group::after
+		content: ''
+		display: table
+		clear: both
+
+@media (min-width: 44em)
+	.container
+		margin: auto
+	.container
+	, main
+		width: calc(100% * 21 / 22)
+	main
+		margin: var(--layout-pad) auto

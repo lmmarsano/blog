@@ -1,0 +1,36 @@
+extends(src='layout.sgr')
+	block(name='banner')
+		section.banner
+			img(class='logo' src='//placeimg.com/300/300/tech' alt='')
+			h1.title: a(href=/) marsano:~/Home$
+			span.tagline Experiments in Front End Design
+	block(name='content')
+		header: h2 Feature Articles
+		.articles
+			section
+				header: h3: a(href=/powershell-remoting) Client Certificate-based PowerShell Remoting
+				.group
+					object(type='image/svg+xml' data='img/powershell-logo.svg' tabindex='-1')
+					p
+						| Since the mid 1990s, 
+						abbr(title='Secure Shell') SSH
+						|  users have long enjoyed the security of remote logins based on public-key authentication instead of transmitting passwords.
+						| This article explains how to configure a similar setup between Windows computers with PowerShell Remoting.
+						| No domain membership required.
+				footer: a(href=/powershell-remoting) Never transmit passwords again!
+			section
+				header: h3: a(href=/dynamic-nameserver) OpenWrt &amp; Dynamic Nameserver
+				.group
+					object(type='image/svg+xml' data='img/lede-logo.svg' tabindex='-1')
+					p
+						| Various Dynamic 
+						abbr(title='Domain Name System') DNS
+						|  services provide global domain names you may use to connect to a single computer in your home-based network.
+						| With a free domain registration and recycled hardware, however, you can setup your own dynamic nameserver to provide globally resolvable records for all devices connected to your home-based network.
+				footer: a(href=/dynamic-nameserver) Provide yourself free domain name service.
+			section
+				header: h3: a(href=/git-usage) Using git
+				.group
+					object(type='image/svg+xml' data='img/git-logo.svg' tabindex='-1')
+					p My notes on using the concurrent version control system, git.
+				footer: a(href=/git-usage) Use git
