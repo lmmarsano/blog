@@ -42,6 +42,8 @@ img
 
 object[type='image/svg+xml']
 	width: 100%
+	margin-right: var(--layout-pad)
+	margin-bottom: var(--layout-pad)
 
 // layout
 body
@@ -136,6 +138,10 @@ header .title
 
 .logo
 	border-radius: 50%
+
+// override PrismJS style
+:not(pre) > code.code-block
+	white-space: pre-wrap
 
 // animation
 @keyframes pulse

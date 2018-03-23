@@ -6,12 +6,11 @@ html(xmlns='http://www.w3.org/1999/xhtml' lang='en')
 		meta(name='description' content='')
 		meta(name='author' content='Luis Marsano')
 		meta(name='viewport' content='width=device-width, initial-scale=1')
-
+		link(rel='icon' sizes='128x128' href='image/favicon.ico')
+		link(rel='icon' sizes='any' media='image/svg+xml' href='image/favicon.svg')
 		block(name='title')
 			title marsano:~{{title ? '/' + title : ''}}$
-
-		link(rel='stylesheet' href='/style/style.css')
-
+		block(name='style')
 	body
 		header
 			.container
@@ -20,12 +19,12 @@ html(xmlns='http://www.w3.org/1999/xhtml' lang='en')
 					nav
 						ul
 							li: a(href=/) Home
-							li: a(href=/about) About
-							li: a(href=/articles) Articles
+							li: a(href=about) About
+							li: a(href=articles) Articles
 						form(role=search)
 							label(for=search)
 							input(id=search type=search name=search placeholder=Search)
-							button(class=search aria-label=Search) 🔍
+							button(class=search aria-label=Search) 🔍︎
 		block(name='banner')
 		main(role='main' id='{{ pageId }}')
 			block(name='content')
@@ -34,4 +33,3 @@ html(xmlns='http://www.w3.org/1999/xhtml' lang='en')
 				//- social media, github
 				small Created by Luis Marsano.
 		block(name='javascript')
-			script(src='js/main.js' defer)

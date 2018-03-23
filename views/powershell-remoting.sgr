@@ -1,0 +1,188 @@
+extends(src='layout.sgr')
+	block(name='content')
+		section
+			header: h2 Introduction
+			p.
+				Secure Shell has long offered the Unix community secure, encrypted remote shell sessions with passwordless authentication.
+				PowerShell Remoting offers this, too, though securely achieving it without an Active Directory domain has been elusive due to execrable documentation.
+				This article addresses that.
+		section
+			header: h2 Requirements
+			p.
+				The following is known to work on Windows 10 non-Home editions (Pro, Enterprise, Education) and Windows Server.
+				It will probably work on earlier versions.
+			p Not required
+			ul
+				li Windows Server
+				li Active Directory domains
+				li Active Directory Certificate Services
+			p.
+				Computers not joined to domains are fine.
+				Everything needed to generate your own certificates is built-in.
+		section
+			header: h2 Overview
+			p.
+				Since 1995, the Unix community has been using public-key cryptography to securely access remote shells across the internet.
+				Public-key cryptography consists of generating key pairs
+			ul
+				li a public key
+				li a private key.
+			p Public-key pairs exhibit these properties
+			ul
+				li computing a complete key pair with either key missing is computationally prohibitive
+				li generating a new pair is practical
+				li messages encrypted by one key are decrypted by the other.
+			p As corollaries, in practice
+			ol
+				li messages encrypted by the public key can be decrypted exclusively by whomever possesses a private key
+				li possession of a private key may be proven by encryption challenges passed by employing the private key.
+			p Thus, as long as the private key is kept secret, public key pairs provide
+			dl
+				dt encryption
+				dd secret, 1-way communication from the public to the private key owner
+				dt authentication
+				dd reasonable proof of private key possession without revealing the private key.
+			p.
+				SSH has long used these features to establish secure, passwordless, remote shell sessions.
+				Typically, the only setup needed is for the user to
+			ol
+				li generate a client key pair
+				li install the client public key on a server to which they will remotely connect.
+			p.
+				Servers are already setup with host key pairs, allowing the user to save the public key.
+				When the user connects from their client to the remote server, the systems
+			ol
+				li
+					p perform mutual authentication
+					ol
+						li the server uses its host keys to authenticate to the client
+						li the client uses the user’s client keys to authenticate to the server.
+				li negotiate an encrypted session.
+			p.
+				If the user enters a password at all, they do so only to decrypt their client keys.
+				Otherwise, no password is needed.
+				Alternatively, key decryption can be unified with logon (ie, single sign-on) or managed with a key agent that reduces password reentry.
+			p
+				| Achieving secure and passwordless authentication based on public cryptography is possible for PowerShell Remoting through <a href='https://msdn.microsoft.com/en-us/library/aa384295.aspx#Client_Certificate-based_Authentication'>Client Certificate-based Authentication</a>, though complicated, error-prone, and poorly documented.
+				| It requires
+			ul
+				li X.509 certificates for both the host and client
+				li firewall rules permitting remoting over TLS
+				li security group changes
+				li service activation.
+			p X.509 certificates can be produced free with tools built into Windows.
+		section
+			header: h2 Setup
+			section
+				header: h3 Public Key Infrastructure
+				section
+					header: h4 About Certificates
+					p
+						| Setup employs 
+						a(href='https://en.wikipedia.org/wiki/X.509') X.509
+						|  public key certificates, so understanding them is vital for remediation and success.
+						| Systems dependant on certificates require 
+						em verifiable
+						|  certificates that are <em>trusted</em>, <em>valid</em>, and <em>operable</em>.
+					p
+						| X.509 binds assertions about a public key pair to a public key through a cryptographically signed certificate bearing the assertions and the public key.
+						| Assertions include
+					ul
+						li names for the subject (key owner) and issuer (certificate signer)
+						li usage qualifiers
+						li validity period
+					p
+						| These assertions are trusted only if signatures trace back to a trusted source.
+						| Trust typically follows a heirarchy.
+						| Each certificate bears a signature of an authority, whose certificate also bears a signature.
+						| This recursion produces a chain of signatures terminating with a self-signed certificate of a root authority.
+						| Ultimately, the verifier either trusts the root or it does not: acceptance descends accordingly.
+						| Specifically,
+					ul
+						li a selflisigned certificate is trusted when trust is preset
+						li any other certificate is trusted when the signer hasn’t revoked it, and the signer’s certificate is trusted.
+					p Moreover, if all certificates in the trusted chain have active validity periods, then they are valid.
+					p Finally, if a valid certificate’s usage qualifiers permit all operations a system needs to commit with it, then the certificate is operable.
+				section
+					header: h4 Objectives
+					p Our certificates will achieve requisites as follows.
+					dl
+						dt verifiability
+						dd on every computer, install all authority certificates of our signature chains; this will be our single root authority certificate.
+						dt trust
+						dd preset each computer to trust our root authority certificate; we won’t revoke any certificates.
+						dt validity
+						dd assign our certificates active validity periods.
+						dt operability
+						dd assign our certificates correct usage qualifiers.
+					p For our public key infrastructure, we will create
+					dl
+						dt as root authority
+						dd 1 self-signed certificate
+						dt for each computer
+						dd 1 web host certificate
+						dt for each user
+						dd 1 web client certificate
+					p
+						| The root authority signs all certificates.
+						| As sensible security, private keys, especially the root authority’s, should be guarded.
+					p
+						| Windows manages certificates by scattering them in registry keys presented as Certificate Stores to management consoles (<code>certlm.msc</code> &amp; <code>certmgr.msc</code>) and PowerShell drives (<code>Cert:</code>).
+						| These certificate stores preset trust and control certificate operations.
+						| To each server’s <em>machine</em> certificate stores, we’ll install operatively appropriate certificates.
+					dl
+						dt root
+						dd the self-signed certificate
+						dt trusted people
+						dd every user’s web client certificate
+						dt machine’s personal
+						dd the computer’s own web host certificate with private key
+					p
+						| Each user’s web client certificate with private key may be stored in their profile’s personal user certificate store or on a more secure medium such as a smart card.
+						| The root authority’s certificate with private key may be stored in any secure location; its use should be infrequent.
+				section
+					header: h4 Preparation
+					p
+						| To facilitate setup and reduce typing, I’ve prepared a 
+						a(href='https://gist.github.com/lmmarsano/30bdbf6a6e91bf4d0488f65edc531af1') script
+						|  and <a href=https://www.powershellgallery.com/packages/CustomPKI/>module</a>: the module extends 
+						code(class='language-powershell') New-SelfSignedCertificate
+						|  with friendlier parameters to add subject alternative names and extended key usage extensions to certificates.
+						| From PowerShell, you’ll need to download the script and run it inline (dot-source it).
+					code(class='language-powershell code-block').
+						Start-BitsTransfer -Source https://gist.githubusercontent.com/lmmarsano/30bdbf6a6e91bf4d0488f65edc531af1/raw/certutil.ps1
+						. .\certutil.ps1
+					p
+						| If the module is missing, the script will offer to install it: please accept and rerun the script inline.
+						| Alternatively, you may install the module
+					code(class='language-powershell') Install-Module -Name CustomPKI -Scope CurrentUser -AllowClobber
+					p then run the script inline
+					code(class='language-powershell') . .\certutil.ps1
+				section
+					header: h4 Certificates Creation
+				section
+					header: h4 Inspection
+				section
+					header: h4 Storage &amp; Distribution
+			section
+				header: h3 Servers
+				section
+					header: h4 Certificate Installation
+				section
+					header: h4 Service Configuration
+			section
+				header: h3 Clients
+				section
+					header: h4 Certificate Installation
+				section
+					header: h4 Usage &amp; Optimization
+		section
+			header: h2 Troubleshooting
+			section
+				header: h3 Certificates
+			section
+				header: h3 Services
+				section
+					header: h4 Server
+				section
+					header: h4 Client
