@@ -1,0 +1,36 @@
+doctype html
+html(xmlns='http://www.w3.org/1999/xhtml' lang='en')
+	- let locals = htmlWebpackPlugin.options.locals
+	head
+		meta(charset='utf-8')
+		meta(http-equiv='X-UA-Compatible' content='IE=edge')
+		meta(name='description' content='')
+		meta(name='author' content='Luis Marsano')
+		meta(name='viewport' content='width=device-width, initial-scale=1')
+		link(rel='icon' sizes='128x128' href='image/favicon.ico')
+		link(rel='icon' sizes='any' media='image/svg+xml' href='image/favicon.svg')
+		block title
+			title marsano:~#{locals.title ? '/' + locals.title : ''}$
+		block style
+	body
+		header
+			.container
+				block header
+					h1.title: a(href='/') marsano:~/Home$
+					nav.site-navigation
+						ul
+							li: a(href='/') Home
+							li: a(href='about') About
+							li: a(href='articles') Articles
+						form(role='search')
+							label(for='search')
+							input(id='search' type='search' name='search' placeholder='Search')
+							button(class='search' aria-label='Search') 🔍︎
+		block banner
+		main(role='main' id=locals.title)
+			block content
+		footer
+			.container
+				//- social media, github
+				small Created by Luis Marsano.
+		block javascript

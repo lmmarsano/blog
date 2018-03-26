@@ -3,6 +3,7 @@ module.exports = config
 function config(env) {
 	const htmlStandards = require('reshape-standard')
 	    , cssStandards = require('spike-css-standards')
+	    , cssCommentFilter = require('postcss-discard-comments')()
 	    , sugarml = require('sugarml')
 	    , webpack = require('webpack')
 	    , path = require('path')
@@ -14,10 +15,11 @@ function config(env) {
 	    , ATLoader = require('awesome-typescript-loader')
 	    , isProd = env && env.NODE_ENV === 'production'
 	    , buildDir = path.resolve(__dirname, 'public')
+	    , context = path.resolve(__dirname, 'views')
 	    , chunk = [ 'index'
 	              , 'powershell-remoting'
 	              ]
-	return { context: path.resolve(__dirname, 'views')
+	return { context
 	       , entry: entrySet(chunk)
 	       , output:
 	         Object.assign
@@ -30,36 +32,16 @@ function config(env) {
 	         { rules:
 	           [ postcssRule(/\.css$/)
 	           , postcssRule(/\.sss$/, 'sugarss')
+	           , { test: /\.pug$/
+	             , use: [ { loader: 'pug-loader' } ]
+	             }
 	           , { test: /\.sgr$/
 	             , use:
-	               [ { loader: 'html-loader'
-	                 , options:
-	                   { // attrs:
-	                   //   [ ':src'
-	                   //   , 'link:href'
-	                   //   , 'object:data'
-	                   //   ]
-	                   // , 
-	                     minimize: isProd
-	                   }
-	                 }
-	               , { loader: 'reshape-loader'
+	               [ { loader: 'reshape-loader'
 	                 , options: Object.assign
 	                   ( htmlStandards
 	                     ({ parser: sugarml
 		                    , minify: isProd
-	                      , locals: function locals(ctx) {
-		                      let rel = path.relative( ctx.context
-		                                             , ctx.resourcePath
-		                                             )
-		                        , pageId = path.join( path.dirname(rel)
-		                                            , path.basename(rel).replace(/\..*/g, '')
-		                                            ).replace(/[\\\/]/g, '-')
-		                      return { ctx
-		                             , pageId
-		                             , title: pageId
-		                             }
-	                      }
 	                      })
 	                   , { generatorOptions:
 	                       { selfClosing: 'slash' }
@@ -130,6 +112,7 @@ function config(env) {
 	              )
 	         ]
 	       }
+	// each entry has a file directly under context
 	function entrySet(names) {
 		let entry = {}
 		for (let name of names) {
@@ -148,10 +131,11 @@ function config(env) {
 		         )
 	}
 	function hwpOptionsDev(name) {
-		return { template: osPath(`./${name}.sgr`)
+		return { template: osPath(`./${name}.pug`)
 		       , filename: `${name}.html`
 		       , xhtml: true
 		       , chunks: [name]
+		       , locals: require(path.join(context, 'locals', name))
 		       }
 	}
 	function hwpOptionsProd(name) {
@@ -165,6 +149,11 @@ function config(env) {
 		     : posixPath.replace(/\//g, path.sep)
 	}
 	function postcssRule(test, parser) {
+		let options = cssStandards({ parser
+		                           , minify: isProd
+		                           , warnForDuplicates: !isProd
+		                           })
+		options.plugins.push(cssCommentFilter)
 		return { test
 		       , use:
 		         ExtractTextPlugin.extract
@@ -176,12 +165,7 @@ function config(env) {
 			            , options: { importLoaders: 1 }
 			            }
 			          , { loader: 'postcss-loader'
-			            , options:
-			              cssStandards
-			              ({ parser
-			               , minify: isProd
-			               , warnForDuplicates: !isProd
-			               })
+			            , options
 			            }
 		            ]
 		          })
@@ -201,6 +185,14 @@ function config(env) {
 		return { loader: 'file-loader'
 		       , options
 		       }
+	}
+	function pageId(ctx) {
+		let rel = path.relative( ctx.context
+		                       , ctx.resourcePath
+		                       )
+		return path.join( path.dirname(rel)
+		                , path.basename(rel).replace(/\..*/g, '')
+		                ).replace(/[\\\/]/g, '-')
 	}
 	// console.dir
 	// ( module.exports

@@ -1,0 +1,9 @@
+{ "settings": {}
+, "plugins":
+	{ "remark-abbr": {}
+		, "remark-toc": {}
+		, "remark-behead":
+		{ "depth": 1 }
+		, "remark-html": {}
+	}
+}

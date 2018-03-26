@@ -19,6 +19,15 @@
 	line-height: 1.6
 	text-align: justify
 
+*
+	box-sizing: border-box
+
+// separate paragraphs with top margin only
+p
+	margin-bottom: 0
+	&:first-child
+		margin-top: 0
+
 h1
 , h2
 , h3
@@ -26,9 +35,6 @@ h1
 , h5
 , h6
 	margin: 0
-
-*
-	box-sizing: border-box
 
 :visited
 	color: var(--visited-color)
@@ -69,14 +75,14 @@ body
 main
 	margin: var(--layout-pad)
 
-nav
+nav.site-navigation
 	& li
 		list-style: none
 	& ul
 		margin: 0
 		padding: 0
 
-nav a
+nav.site-navigation a
 , .articles footer > a
 	display: block
 	border: var(--border-style)
@@ -84,7 +90,7 @@ nav a
 .articles footer > a
 	text-align: center
 
-nav a
+nav.site-navigation a
 , #search
 , .articles footer > a
 	padding: var(--link-pad)
@@ -102,7 +108,7 @@ form[role='search']
 	flex: auto
 
 // main
-nav a
+nav.site-navigation a
 	&:focus
 	, &:hover
 		&::before
@@ -111,6 +117,7 @@ nav a
 body > header
 	font-size: var(--font-size)
 
+// animate slow flashing cursor
 body > header
 , .title
 	& a:focus
@@ -143,6 +150,10 @@ header .title
 :not(pre) > code.code-block
 	white-space: pre-wrap
 
+code[class*='language-']
+, pre[class*='language-']
+	tab-size: 2
+
 // animation
 @keyframes pulse
 	to
@@ -162,20 +173,20 @@ header .title
 	header .title
 		text-align: left
 	header > .container
-	, nav
-	, nav ul
+	, nav.site-navigation
+	, nav.site-navigation ul
 	, .articles
 		display: flex
 		flex-flow: row wrap
 	header > .container
-	, nav
-	, nav ul
+	, nav.site-navigation
+	, nav.site-navigation ul
 		align-items: baseline
 		& > *
 			flex: auto
 	.articles > *
 		flex: 1 1 20em
-	nav form
+	nav.site-navigation form
 		align-self: stretch
 	object[type='image/svg+xml']
 		float: left
