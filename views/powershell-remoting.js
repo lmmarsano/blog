@@ -1,2 +1,3 @@
+import './script/script'
 import './script/code-brush'
-import './index'
+import './style/powershell-remoting.sss'

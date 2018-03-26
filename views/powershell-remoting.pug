@@ -102,6 +102,7 @@ block content
 		p If the user enters a password at all, they do so only to decrypt their client keys. Otherwise, no password is needed. Alternatively, key decryption can be unified with logon (ie, single sign-on) or managed with a key agent that reduces password reentry.
 		p
 			| Achieving secure and passwordless authentication based on public cryptography is possible for PowerShell Remoting through
+			|
 			a(href='https://msdn.microsoft.com/en-us/library/aa384295.aspx#Client_Certificate-based_Authentication') Client Certificate-based Authentication
 			| , though complicated, error-prone, and poorly documented. It requires
 		ul
@@ -114,17 +115,8 @@ block content
 		h3#public-key-infrastructure Public Key Infrastructure
 		h4#about-certificates About Certificates
 		p
-			| Setup employs
-			a(href='https://en.wikipedia.org/wiki/X.509') X.509
-			| public key certificates, so understanding them is vital for remediation and success. Systems dependant on certificates require
-			em verifiable
-			| certificates that are
-			em trusted
-			| ,
-			em valid
-			| , and
-			em operable
-			| .
+			| Setup employs #[a(href='https://en.wikipedia.org/wiki/X.509') X.509] public key certificates, so understanding them is vital for remediation and success.
+			| Systems dependant on certificates require #[em verifiable] certificates that are #[em trusted], #[em valid], and #[em operable].
 		p X.509 binds assertions about a public key pair to a public key through a cryptographically signed certificate bearing the assertions and the public key. Assertions include
 		ul
 			li names for the subject (key owner) and issuer (certificate signer)
@@ -138,61 +130,40 @@ block content
 		p Finally, if a valid certificate’s usage qualifiers permit all operations a system needs to commit with it, then the certificate is operable.
 		h4#objectives Objectives
 		p Our certificates will achieve requisites as follows.
-		ul
-			li
-				strong verifiability:
-				| on every computer, install all authority certificates of our signature chains; this will be our single root authority certificate.
-			li
-				strong trust:
-				| preset each computer to trust our root authority certificate; we won’t revoke any certificates.
-			li
-				strong validity:
-				| assign our certificates active validity periods.
-			li
-				strong operability:
-				| assign our certificates correct usage qualifiers.
+		dl
+			dt verifiability
+			dd on every computer, install all authority certificates of our signature chains; this will be our single root authority certificate.
+			dt trust
+			dd preset each computer to trust our root authority certificate; we won’t revoke any certificates.
+			dt validity
+			dd assign our certificates active validity periods.
+			dt operability
+			dd assign our certificates correct usage qualifiers.
 		p For our public key infrastructure, we will create
-		ul
-			li
-				strong as root authority:
-				| 1 self-signed certificate
-			li
-				strong for each computer:
-				| 1 web host certificate
-			li
-				strong for each user:
-				| 1 web client certificate
+		dl
+			dt as root authority
+			dd 1 self-signed certificate
+			dt for each computer
+			dd 1 web host certificate
+			dt for each user
+			dd 1 web client certificate
 		p The root authority signs all certificates. As sensible security, private keys, especially the root authority’s, should be guarded.
 		p
-			| Windows manages certificates by scattering them in registry keys presented as Certificate Stores to management consoles (
-			code certlm.msc
-			| &
-			code certmgr.msc
-			| ) and PowerShell drives (
-			code Cert:
-			| ). These certificate stores preset trust and control certificate operations. To each server’s
-			em machine
-			| certificate stores, we’ll install operatively appropriate certificates.
-		ul
-			li
-				strong root:
-				| the self-signed certificate
-			li
-				strong trusted people:
-				| every user’s web client certificate
-			li
-				strong machine’s personal:
-				| the computer’s own web host certificate with private key
+			| Windows manages certificates by scattering them in registry keys presented as Certificate Stores to management consoles (#[code certlm.msc] & #[code certmgr.msc]) and PowerShell drives (#[code Cert:] ).
+			| These certificate stores preset trust and control certificate operations.
+			| To each server’s #[em machine] certificate stores, we’ll install operatively appropriate certificates.
+		dl
+			dt root
+			dd the self-signed certificate
+			dt trusted people
+			dd every user’s web client certificate
+			dt machine’s personal
+			dd the computer’s own web host certificate with private key
 		p Each user’s web client certificate with private key may be stored in their profile’s personal user certificate store or on a more secure medium such as a smart card. The root authority’s certificate with private key may be stored in any secure location; its use should be infrequent.
 		h4#preparation Preparation
 		p
-			| To facilitate setup and reduce typing, I’ve prepared a
-			a(href='https://gist.github.com/lmmarsano/30bdbf6a6e91bf4d0488f65edc531af1') script
-			| and
-			a(href='https://www.powershellgallery.com/packages/CustomPKI/') module
-			| : the module extends
-			code New-SelfSignedCertificate
-			| with friendlier parameters to add subject alternative names and extended key usage extensions to certificates. From PowerShell, you’ll need to download the script and run it inline (dot-source it).
+			| To facilitate setup and reduce typing, I’ve prepared a #[a(href='https://gist.github.com/lmmarsano/30bdbf6a6e91bf4d0488f65edc531af1') script] and #[a(href='https://www.powershellgallery.com/packages/CustomPKI/') module]: the module extends #[code New-SelfSignedCertificate] with friendlier parameters to add subject alternative names and extended key usage extensions to certificates.
+			| From PowerShell, you’ll need to download the script and run it inline (dot-source it).
 		pre
 			code.language-powershell.
 				Start-BitsTransfer -Source https://gist.githubusercontent.com/lmmarsano/30bdbf6a6e91bf4d0488f65edc531af1/raw/certutil.ps1
@@ -205,43 +176,29 @@ block content
 			code.language-powershell . .\certutil.ps1
 		h4#certificate-creation Certificate Creation
 		p
-			| Choose a valid period for our certificates. We’ll need 2 dates to provide
-			a(href='https://docs.microsoft.com/en-us/powershell/module/pkiclient/new-selfsignedcertificate') New-SelfSignedCertificate
-		ul
-			li
-				strong NotBefore:
-				| date & time validity begins
-			li
-				strong NotAfter:
-				| date & time validity ends
+			| Choose a valid period for our certificates.
+			| We’ll need 2 dates to provide #[a(href='https://docs.microsoft.com/en-us/powershell/module/pkiclient/new-selfsignedcertificate') New-SelfSignedCertificate]
+		dl
+			dt NotBefore
+			dd date & time validity begins
+			dt NotAfter
+			dd date & time validity ends
 		p
-			| The provided
-			code New-ValidityInterval
-			| function returns these dates as a reusable hash object computed from
-			code -Start
-			| (optional: defaults to today) and
-			code -YearsDuration
-			| .
+			| The provided #[code New-ValidityInterval] function returns these dates as a reusable hash object computed from #[code -Start] (optional: defaults to today) and #[code -YearsDuration].
 		pre
 			code.language-powershell $commonArgs = New-ValidityInterval -YearsDuration 10
 		ol
 			li
 				p Root Certificate Authority
 				p
-					| Choose a name, organization, your
-					a(href='https://www.iso.org/obp/ui/#search/code/') 2-letter country code
-					| , and run the commands
+					| Choose a name, organization, your #[a(href='https://www.iso.org/obp/ui/#search/code/') 2-letter country code], and run the commands
 				pre
 					code.language-powershell.
 						$rootca = New-RootCACertificate -CommonName CustomRoot -Organization CustomOrg -Country US @commonArgs
 						Export-PrivateCertificate -Cert $rootca
 						$commonArgs.RootCA = $rootca
 				p
-					| We set
-					code RootCA
-					| in
-					code $commonArgs
-					| to sign all remaining certificates.
+					| We set #[code RootCA] in #[code $commonArgs] to sign all remaining certificates.
 			li
 				p Server Certificates
 				p For each server, create a certificate bearing its hostname and all its domain names.
@@ -254,17 +211,14 @@ block content
 						host-n
 						'@) | % { Export-PrivateCertificate -Remove -Cert (New-ServerCertificate -HostName $_,('{0}.suffix' -f $_),localhost @commonArgs) }
 				p
-					| For each server
-					code host-i
-					| , the above creates a certificate listing its domain names
+					| For each server #[code host-i], the above creates a certificate listing its domain names
 				ul
 					li host-i
 					li host-i.suffix
 					li localhost
 				p
-					| in the Subject Alternative Name extension, and exports this certificate and private key to the file
-					code host-i.p12
-					| . Adapt the above to suite your needs.
+					| in the Subject Alternative Name extension, and exports this certificate and private key to the file #[code host-i.p12].
+					| Adapt the above to suite your needs.
 				ol
 					li
 						p Hostname Lookup
@@ -288,6 +242,7 @@ block content
 				p Client Certificates
 				p
 					| For each user, create a certificate bearing all their local usernames on all servers: each username appears as a Subject Alternative Name UPN field consisting of
+					|
 					em username
 					code @localhost
 					| .
@@ -303,13 +258,19 @@ block content
 						$client | % { Export-PrivateCertificate -Cert $_ -Remove }
 				p
 					code New-ClientCertificate
+					|
 					| adds the suffix and attaches the appropriate field. For users with multiple names, the
+					|
 					code -User
+					|
 					| parameter accepts a list. The above bundles all public certificates into a bundle file
+					|
 					code client.p7b
 					| . For each user
+					|
 					code user-i
 					| , it exports their certificate with private key to
+					|
 					code user-i.pk12
 					| . Adapt the above to suit your needs.
 				ol
@@ -333,15 +294,21 @@ block content
 				p Stores
 				p
 					| PowerShell has the
+					|
 					a(href='https://docs.microsoft.com/powershell/module/microsoft.powershell.security/providers/certificate-provider') Certificate drive
+					|
 					code Cert:
 					| . Browse with usual cmdlets such as
+					|
 					code Get-ChildItem
 					| . Alternatively, open the consoles
+					|
 					code certlm.msc
 					| ,
+					|
 					code certmgr.msc
 					| . Unless you specified otherwise, all certificates were created in your personal store
+					|
 					code Cert:\CurrentUser\My\
 					| .
 				pre
@@ -367,6 +334,7 @@ block content
 						Extensions   : {System.Security.Cryptography.Oid, System.Security.Cryptography.Oid, System.Security.Cryptography.Oid}
 				p
 					| The best command for the task is
+					|
 					code certutil
 					| .
 				pre
@@ -505,7 +473,9 @@ block content
 				p Correct Certificate Fields & Extensions
 				p
 					| These samples from
+					|
 					code certutil
+					|
 					| exemplify correct certificates. Ensure your certificates feature similar fields and extensions.
 			li
 				p All Certificates
@@ -598,16 +568,13 @@ block content
 										4f8142f5ebfe096b5dbcd5b561f1cb13f3953069
 		h4#storage--distribution Storage & Distribution
 		p Your directory should have a collection of certificate files with names derived from those you provided. Filename suffixes indicate contents.
-		ul
-			li
-				strong .cert:
-				| public certificate
-			li
-				strong .p12:
-				| private key
-			li
-				strong .p7b:
-				| public certificate bundle
+		dl
+			dt .cert
+			dd public certificate
+			dt .p12
+			dd private key
+			dt .p7b
+			dd public certificate bundle
 		p Save the root’s private key somewhere secure and optionally delete it from your store.
 		pre
 			code.language-powershell $rootca | Remove-Item
@@ -621,6 +588,7 @@ block content
 		h4#certificate-installation Certificate Installation
 		p
 			| On each server, install it’s private key and the public certificates. For server
+			|
 			em host-i
 			| , run a PowerShell console as an administrator, and do
 		pre
@@ -630,16 +598,13 @@ block content
 				$server = Import-ServerCertificate -FilePath .\host-i.p12
 				Import-ClientCertificate -FilePath .\client.p7b
 		p This installs certificates and keys to corresponding locations:
-		ul
-			li
-				strong root:
-				| Cert:\LocalMachine\Root
-			li
-				strong server:
-				| Cert:\LocalMachine\My
-			li
-				strong clients:
-				| Cert:\LocalMachine\TrustedPeople
+		dl
+			dt root
+			dd Cert:\LocalMachine\Root
+			dt server
+			dd Cert:\LocalMachine\My
+			dt clients
+			dd Cert:\LocalMachine\TrustedPeople
 		h4#service-configuration Service Configuration
 		p While you’re there, enable PowerShell Remoting.
 		pre
@@ -652,7 +617,9 @@ block content
 			code.language-powershell Add-RemotingMember -Member 'NT AUTHORITY\Authenticated Users'
 		p
 			| Alternatively, pass a more specific list of groups and users to the
+			|
 			code -Member
+			|
 			| parameter. Some groups are preassigned access:
 		pre
 			code.language-powershell Get-PSSessionConfiguration
@@ -665,14 +632,18 @@ block content
 				Import-RootCACertificate -FilePath .\root.cert
 		p
 			| The user
+			|
 			em user-j
+			|
 			| installs their private key to a smart card or onto their client computer (from their ordinary console)
 		pre
 			code.language-powershell $client = Import-PfxCertificate -CertStoreLocation Cert:\CurrentUser\My\ -FilePath .\user-j.p12
 		h4#usage--optimization Usage & Optimization
 		p
 			| Remote servers will accept user passwords and client certificates. To authenticate with certificate, an authorized user connecting to server
+			|
 			em host-i
+			|
 			| would enter from their client console
 		pre
 			code.language-powershell Enter-PSSession -ComputerName host-i -CertificateThumbprint $client.Thumbprint
@@ -681,21 +652,22 @@ block content
 			code.language-powershell Enter-PSSession -ComputerName host-i
 		p
 			| A profile script can automate certificate retrieval and set default parameters. I add the following to my profile at
+			|
 			code $PROFILE.CurrentUserAllHosts
 			| :
 		pre
 			code.language-powershell.
 				$ClientCertificate = Get-ChildItem -Path Cert:\CurrentUser\My -Eku 'Client Authentication' `
-													 | ? { $_.Verify() -and $_.GetNameInfo([System.Security.Cryptography.X509Certificates.X509NameType]::UpnName, $false) -eq ('{0}@localhost' -f [System.Environment]::UserName) } `
-													 | Select-Object -First 1
+				                   | ? { $_.Verify() -and $_.GetNameInfo([System.Security.Cryptography.X509Certificates.X509NameType]::UpnName, $false) -eq ('{0}@localhost' -f [System.Environment]::UserName) } `
+				                   | Select-Object -First 1
 				if ($ClientCertificate) {
-						(-split @'
+					(-split @'
 				Enter
 				Connect
 				New
 				'@) | % {
-								$PSDefaultParameterValues['{0}-PSSession:CertificateThumbprint' -f $_] = $ClientCertificate.Thumbprint
-						}
+						$PSDefaultParameterValues['{0}-PSSession:CertificateThumbprint' -f $_] = $ClientCertificate.Thumbprint
+					}
 				}
 		p A user can then run
 		pre
@@ -705,12 +677,14 @@ block content
 		h3#certificates Certificates
 		p
 			a(href='#inspect-cert') Inspect certificates
+			|
 			| to check
 		ul
 			li certificate fields and extensions
 			li certificate store locations
 		p
 			| Perform validation checks with
+			|
 			code certutil -verifystore
 			| : substituting names as appropriate
 		pre
@@ -720,13 +694,19 @@ block content
 				certutil -verifystore trustedpeople username@localhost
 		p
 			| Though
+			|
 			a(href='https://docs.microsoft.com/dotnet/api/system.security.cryptography.x509certificates.x509certificate2.verify') X509Certificate2.Verify Method
+			|
 			| exists, it has reported
+			|
 			code False
+			|
 			| on my server certificates in a working setup, so treat it skeptically.
 		p
 			| Finally, check that
+			|
 			code Cert:\LocalMachine\Root
+			|
 			| has only self-signed certificates: if
 		pre
 			code.language-powershell ($certs = Get-ChildItem -Path Cert:\LocalMachine\Root\ | ? { $_.Issuer -ne $_.Subject })
@@ -735,6 +715,7 @@ block content
 			code.language-powershell $certs | Move-Item -Destination Cert:\LocalMachine\CA\
 		p
 			| In the name of backward compatibility,
+			|
 			a(href='https://docs.microsoft.com/en-us/windows-server/security/tls/what-s-new-in-tls-ssl-schannel-ssp-overview') Windows’ client authentication protocols are convoluted or poorly explained
 			| , and uninformative logs and error messages won’t effectively alert you of issues like this last one.
 		h3#services Services
@@ -742,6 +723,7 @@ block content
 		p
 			a(href='#service-config')
 				code Enable-RemotingSSL
+			|
 			| configures a number of system areas: service startup, WS-Management, firewall, PowerShell sessions. WinRM should be running and start automatically.
 		pre
 			code.language-powershell.
@@ -752,6 +734,7 @@ block content
 				Status    : Running
 		p
 			code Get-PSSessionConfiguration
+			|
 			| should list these services and permissions.
 		pre
 			code.language-powershell.
@@ -774,7 +757,9 @@ block content
 				Name : WINRM-HTTPS-In-TCP-NoScope
 		p
 			| The
+			|
 			a(href='https://docs.microsoft.com/powershell/module/microsoft.wsman.management/provider/wsman-provider') WSMan Provider
+			|
 			| exposes some settings.
 		pre
 			code.language-powershell Get-ChildItem -Recurse -Path WSMan:\localhost\Service\,WSMan:\localhost\Shell\
@@ -813,7 +798,9 @@ block content
 					code.language-powershell ($listener = Get-ChildItem -Path WSMan:\localhost\Listener\ | ? { $_.Keys -contains 'Transport=HTTPS' })
 				p
 					| the output of
+					|
 					code $listener | Get-ChildItem
+					|
 					| includes these values
 				pre
 					code.language-powershell.
@@ -838,7 +825,9 @@ block content
 					code.language-powershell ($client = Get-ChildItem -Path WSMan:\localhost\ClientCertificate\)
 				p
 					| Items output by
+					|
 					code $client | Get-ChildItem
+					|
 					| include values like these
 				pre
 					code.language-powershell.
@@ -861,8 +850,11 @@ block content
 		h4#client Client
 		p
 			code Get-ChildItem -Path WSMan:\localhost\Client\Auth\
+			|
 			| should show the
+			|
 			code Certificate
+			|
 			| key set.
 		pre
 			code.language-powershell.
