@@ -11,7 +11,7 @@ function config(env) {
 	    , CleanWebpackPlugin = require('clean-webpack-plugin')
 	    , HtmlWebpackPlugin = require('html-webpack-plugin')
 	    , CopyWebpackPlugin = require('copy-webpack-plugin')
-	    , ExtractTextPlugin = require("extract-text-webpack-plugin")
+	    , MiniCssExtractPlugin = require('mini-css-extract-plugin')
 	    , ATLoader = require('awesome-typescript-loader')
 	    , isProd = env && env.NODE_ENV === 'production'
 	    , buildDir = path.resolve(__dirname, 'public')
@@ -33,7 +33,11 @@ function config(env) {
 	           [ postcssRule(/\.css$/)
 	           , postcssRule(/\.sss$/, 'sugarss')
 	           , { test: /\.pug$/
-	             , use: [ { loader: 'pug-loader' } ]
+	             , use:
+	               [ { loader: 'pug-loader'
+	                 , options: {}
+	                 }
+	               ]
 	             }
 	           , { test: /\.sgr$/
 	             , use:
@@ -78,36 +82,33 @@ function config(env) {
 	         { contentBase: buildDir
 	         , hot: !isProd
 	         }
+	       , optimization: isProd
+	                     ? { splitChunks:
+	                         { cacheGroups:
+	                           { commons:
+	                             { chunks: 'common'
+	                             , minChunks: 2
+	                             , maxInitialRequests: 5 // The default limit is too small to showcase the effect
+	                             , minSize: 0 // This is example is too small to create commons chunks
+	                             }
+	                           }
+	                         }
+	                       }
+	                     : {}
 	       , plugins:
 	         [ new CleanWebpackPlugin([buildDir])
 	         , new CopyWebpackPlugin
 	           ([{ from: { glob: osPath('./image/*') } }])
 	         // , new ATLoader.CheckerPlugin
 	         , ...hwpArray(chunk)
-	         , new ExtractTextPlugin
-	           ({ filename: osPath('style/[name].[contenthash].css')
-	            , allChunks: true
+	         , new MiniCssExtractPlugin
+	           ({ filename: osPath('style/[name].[hash].css')
+	            , chunkFilename: osPath('style/[name].[chunkhash].chunk.css')
 	           })
 	         , new ManifestPlugin
 	         , new webpack.NamedModulesPlugin
-	         // , new webpack.optimize.CommonsChunkPlugin
-	         //   ({ name: 'vendor'
-	         //    , minChunks:
-	         //      function minChunks(module) {
-		       //        return module.context
-		       //            && module.context.includes('node_modules')
-	         //      }
-	         //    })
 	         , ...( isProd
-	              ? [ new webpack.optimize.CommonsChunkPlugin
-	                  ({ name: 'common'
-	                   , minChunks: 2
-	                   })
-	                , new webpack.optimize.CommonsChunkPlugin
-	                  ({ name: 'manifest'
-	                   , minChunks: Infinity
-	                   })
-	                ]
+	              ? []
 	              : [ new webpack.HotModuleReplacementPlugin ]
 	              )
 	         ]
@@ -156,19 +157,17 @@ function config(env) {
 		options.plugins.push(cssCommentFilter)
 		return { test
 		       , use:
-		         ExtractTextPlugin.extract
-		         ({ use:
-		            [ // fileLoader('css', 'style/')
-			            // , { loader: 'extract-loader' }
-			            // , 
-			            { loader: 'css-loader'
-			            , options: { importLoaders: 1 }
-			            }
-			          , { loader: 'postcss-loader'
-			            , options
-			            }
-		            ]
-		          })
+		         [ // fileLoader('css', 'style/')
+			         // , { loader: 'extract-loader' }
+			         // ,
+			         { loader: MiniCssExtractPlugin.loader }
+			       , { loader: 'css-loader'
+			         , options: { importLoaders: 1 }
+			         }
+			       , { loader: 'postcss-loader'
+			         , options
+			         }
+		         ]
 		       }
 	}
 	function fileLoader(ext = '[ext]', publicPath) {
