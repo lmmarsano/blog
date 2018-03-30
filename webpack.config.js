@@ -3,7 +3,6 @@ module.exports = config
 function config(env) {
 	const cssStandards = require('spike-css-standards')
 	    , cssCommentFilter = require('postcss-discard-comments')()
-	    , sugarml = require('sugarml')
 	    , webpack = require('webpack')
 	    , path = require('path')
 	    , ManifestPlugin = require('webpack-manifest-plugin')
@@ -13,7 +12,7 @@ function config(env) {
 	    , MiniCssExtractPlugin = require('mini-css-extract-plugin')
 	    , ATLoader = require('awesome-typescript-loader')
 	    , isProd = env && env.NODE_ENV === 'production'
-	    , buildDir = path.resolve(__dirname, 'public')
+	    , buildDir = path.resolve(__dirname, 'docs')
 	    , context = path.resolve(__dirname, 'views')
 	    , output = { path: buildDir
 	               , filename: osPath('script/[name].js')

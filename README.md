@@ -1,8 +1,8 @@
-# Web Journal
+# [Web Journal](//lmmarsano.github.io/journal/)
 
 Personal journal on coding.
 Designed with accessibility in mind.
-Built in language preprocessors ([pug](//pugjs.org), [PostCSS](//postcss.org/) with [SugarSS](//github.com/postcss/sugarss) parser) to keep it [abbr title='don’t repeat yourself'](abbr title='don’t repeat yourself')DRY[/abbr](/abbr).
+Built in language preprocessors ([pug](//pugjs.org), [PostCSS](//postcss.org/) with [SugarSS](//github.com/postcss/sugarss) parser) to keep it <abbr title='don’t repeat yourself'>DRY</abbr>.
 
 ## Custom CSS
 
@@ -57,7 +57,7 @@ Scripts directly under [views](views) feature page-specific code.
 ## Comments
 
 Refer to the preprocessed files under [views](views).
-Processed files under [public](public) strip them, though they may be visible under source maps.
+Processed files under [docs](docs) strip them, though they may be visible under source maps.
 
 ## Development
 
@@ -65,13 +65,13 @@ Processed files under [public](public) strip them, though they may be visible un
 - in your terminal, do the following or the equivalent
 
   ```shell
-  git clone https://github.com/lmmarsano/blog.git
-  cd blog
+  git clone https://github.com/lmmarsano/journal.git
+  cd journal
   npm install
   ```
 
-- run the development server `npm run build-dev`
-- alternatively, build `npm build` and run your own server under the build root `public`, eg
+- run the development server `npm start`
+- alternatively, build `npm run build-dev` and run your own server under the build root `public`, eg
   ```shell
   cd public
   python3 -m http.server

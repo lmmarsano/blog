@@ -2,7 +2,7 @@ doctype html
 mixin navItem(title, label)
 	- label ? null : (label = title)
 	li.nav-item
-		a( href=(title ? `${title}.html` : '/')
+		a( href=(title ? `${title}.html` : '.')
 		   aria-current=(locals.title === title && 'page')
 		 )= label
 mixin navStub(title, label)
@@ -32,7 +32,7 @@ html(xmlns='http://www.w3.org/1999/xhtml' lang='en')
 			.container
 				block header
 					h1.title
-						a( href='/'
+						a( href='.'
 						   aria-current=(locals.title === title && 'page')
 						 ) marsano:~/home$
 					nav(aria-label='Site Navigation')
