@@ -1,8 +1,7 @@
 'use strict'
 module.exports = config
 function config(env) {
-	const htmlStandards = require('reshape-standard')
-	    , cssStandards = require('spike-css-standards')
+	const cssStandards = require('spike-css-standards')
 	    , cssCommentFilter = require('postcss-discard-comments')()
 	    , sugarml = require('sugarml')
 	    , webpack = require('webpack')
@@ -16,18 +15,25 @@ function config(env) {
 	    , isProd = env && env.NODE_ENV === 'production'
 	    , buildDir = path.resolve(__dirname, 'public')
 	    , context = path.resolve(__dirname, 'views')
+	    , output = { path: buildDir
+	               , filename: osPath('script/[name].js')
+	               , chunkFilename: osPath('script/[id].chunk.js')
+	               }
 	    , chunk = [ 'index'
+	              , 'about'
 	              , 'powershell-remoting'
+	              , 'dynamic-nameserver'
+	              , 'euclidean-algorithm'
 	              ]
 	return { context
 	       , entry: entrySet(chunk)
-	       , output:
-	         Object.assign
-	         ( { path: buildDir }
-	         , { filename: osPath('script/[name].[hash].js')
-	           , chunkFilename: osPath('script/[id].[chunkhash].chunk.js')
-	           }
-	         )
+	       , output: isProd
+	               ? output
+	               : Object.assign( output
+	                              , { devtoolModuleFilenameTemplate: '[absolute-resource-path]'
+	                                , devtoolFallbackModuleFilenameTemplate: '[absolute-resource-path]?[hash]'
+	                                }
+	                              )
 	       , module:
 	         { rules:
 	           [ postcssRule(/\.css$/)
@@ -36,21 +42,6 @@ function config(env) {
 	             , use:
 	               [ { loader: 'pug-loader'
 	                 , options: {}
-	                 }
-	               ]
-	             }
-	           , { test: /\.sgr$/
-	             , use:
-	               [ { loader: 'reshape-loader'
-	                 , options: Object.assign
-	                   ( htmlStandards
-	                     ({ parser: sugarml
-		                    , minify: isProd
-	                      })
-	                   , { generatorOptions:
-	                       { selfClosing: 'slash' }
-	                     }
-	                   )
 	                 }
 	               ]
 	             }
@@ -82,33 +73,20 @@ function config(env) {
 	         { contentBase: buildDir
 	         , hot: !isProd
 	         }
-	       , optimization: isProd
-	                     ? { splitChunks:
-	                         { cacheGroups:
-	                           { commons:
-	                             { chunks: 'common'
-	                             , minChunks: 2
-	                             , maxInitialRequests: 5 // The default limit is too small to showcase the effect
-	                             , minSize: 0 // This is example is too small to create commons chunks
-	                             }
-	                           }
-	                         }
-	                       }
-	                     : {}
 	       , plugins:
 	         [ new CleanWebpackPlugin([buildDir])
 	         , new CopyWebpackPlugin
 	           ([{ from: { glob: osPath('./image/*') } }])
 	         // , new ATLoader.CheckerPlugin
 	         , ...hwpArray(chunk)
-	         , new MiniCssExtractPlugin
-	           ({ filename: osPath('style/[name].[hash].css')
-	            , chunkFilename: osPath('style/[name].[chunkhash].chunk.css')
-	           })
 	         , new ManifestPlugin
 	         , new webpack.NamedModulesPlugin
 	         , ...( isProd
-	              ? []
+	              ? [ new MiniCssExtractPlugin
+	                  ({ filename: osPath('style/[name].css')
+	                   , chunkFilename: osPath('style/[name].chunk.css')
+	                   })
+	                ]
 	              : [ new webpack.HotModuleReplacementPlugin ]
 	              )
 	         ]
@@ -140,8 +118,10 @@ function config(env) {
 		       }
 	}
 	function hwpOptionsProd(name) {
+		// default configuration creates shared chunks, default vendors: include them in the webpage
+		// https://gist.github.com/sokra/1522d586b8e5c0f5072d7565c2bee693#configurate-cache-groups
 		let options = hwpOptionsDev(name)
-		options.chunks.unshift('manifest', 'common')
+		options.chunks.unshift('default', 'vendors')
 		return options
 	}
 	function osPath(posixPath) {
@@ -155,14 +135,20 @@ function config(env) {
 		                           , warnForDuplicates: !isProd
 		                           })
 		options.plugins.push(cssCommentFilter)
+		options.sourceMap = true
 		return { test
 		       , use:
-		         [ // fileLoader('css', 'style/')
-			         // , { loader: 'extract-loader' }
-			         // ,
-			         { loader: MiniCssExtractPlugin.loader }
+		         [ ...( isProd
+			            ? [ { loader: MiniCssExtractPlugin.loader } ]
+			            : [ { loader: 'style-loader'
+			                , options: { sourceMap: true }
+			                }
+			              ]
+			            )
 			       , { loader: 'css-loader'
-			         , options: { importLoaders: 1 }
+			         , options: { importLoaders: 1
+			                    , sourceMap: true
+			                    }
 			         }
 			       , { loader: 'postcss-loader'
 			         , options
@@ -171,7 +157,7 @@ function config(env) {
 		       }
 	}
 	function fileLoader(ext = '[ext]', publicPath) {
-		let options = { name: `[name].[hash].${ext}`
+		let options = { name: `[name].${ext}`
 		              }
 		if (publicPath) {
 			Object.assign
@@ -185,18 +171,4 @@ function config(env) {
 		       , options
 		       }
 	}
-	function pageId(ctx) {
-		let rel = path.relative( ctx.context
-		                       , ctx.resourcePath
-		                       )
-		return path.join( path.dirname(rel)
-		                , path.basename(rel).replace(/\..*/g, '')
-		                ).replace(/[\\\/]/g, '-')
-	}
-	// console.dir
-	// ( module.exports
-	// , { depth: 7
-	//   , colors: true
-	//   }
-	// )
 }
