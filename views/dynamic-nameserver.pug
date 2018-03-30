@@ -1,0 +1,28 @@
+extends layout.pug
+block content
+	article
+		section
+			header: h2 OpenWrt & Dynamic Nameserver
+			section
+				header: h3 Hardware
+				p.
+					A nameserver requires a system reachable from the public internet and running at all times.
+					If you’ve ever replaced a router and not thrown it away, then you likely have a suitable server: many such devices have reprogrammable firmware that can turn them into powerful servers.
+					Check #[a(href='//openwrt.org/toh/start') the listings at OpenWrt] for your device.
+					If your device is listed, and you have a home internet connection, then you have everything you need to have your own nameserver.
+					Typically, all you will need is an ethernet cable and their instructions to install a highly configurable Linux distribution that allows you to do practically anything.
+					You can even use any #[abbr USB] ports on the device to expand storage capacity.
+			section
+				header: h3 Configuration
+				p.
+					OpenWrt includes packages installed through #[a(href='//openwrt.org/docs/guide-user/additional-software/opkg') the #[code opkg] command].
+					For #[abbr DNS] services, install #[a(href='//openwrt.org/docs/guide-user/base-system/dhcp.dnsmasq') dnsmasq].
+				p.
+					If your internet service provider gives you only a single #[abbr IP] address, you can get additional #[abbr IPv6] addresses from #[a(href='//tunnelbroker.net/') a free tunnel broker] and configure #[a(href='//openwrt.org/docs/guide-user/network/tunneling_interface_protocols?s[]=6in4#static_ipv6-in-ipv4_tunnel') 6in4] tunneling.
+				p.
+					Finally, you’ll need to register a domain name.
+					Free domains can be registered from #[a(href='//www.freenom.com/') freenom].
+				p.
+					If your #[abbr IP] address dynamically, you can configure OpenWrt to update your domain registration whenever the address changes.
+					Like most Unix-based #[abbr DHCP] clients, OpenWrt’s #[abbr DHCP] client, #[a(href='https://github.com/sbyx/odhcp6c') odhcp6c] can run a script whenever the address changes.
+					Attach a script to update your registrar’s records for your server.
