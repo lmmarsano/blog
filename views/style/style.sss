@@ -8,10 +8,11 @@
 	--foreground-color: white
 	--link-color: lightskyblue
 	--visited-color: #dda0dd
-	--border-style: thin solid
 	--visited-negative: #225f22
+	--border-style: thin solid
 	--font-size: medium
 	--link-pad: 0.5em
+	--neg-link-pad: -0.5em
 	--layout-pad: 1em
 	background: var(--background-color)
 	color: var(--foreground-color)
@@ -27,7 +28,7 @@
 // separate paragraphs with top margin only
 p
 	margin-bottom: 0
-	&:first-child
+	@nest &:first-child, header + &
 		margin-top: 0
 
 h1
@@ -37,6 +38,32 @@ h1
 , h5
 , h6
 	margin: 0
+
+// adjust list padding/margin
+ol
+, ul
+, menu
+, dir
+	padding: 0
+	margin-left: var(--layout-pad)
+
+// tables
+table
+	margin: auto
+th
+, td
+	& + th
+	, & + td
+		padding-left: var(--link-pad)
+
+thead
+	text-transform: capitalize
+
+caption
+	caption-side: bottom
+
+dt
+	font-weight: bold
 
 :visited
 	color: var(--visited-color)
@@ -53,14 +80,19 @@ object[type='image/svg+xml']
 	margin-right: var(--layout-pad)
 	margin-bottom: var(--layout-pad)
 
+label
+	display: block
+
 // layout
 body
 	display: flex
 	flex-flow: column
 	align-items: center
 	min-height: 100vh
-	& > *
+	// only main grows
+	& > main
 		flex: auto
+	& > *
 		justify-content: space-between
 	& > header
 	, & > footer
@@ -71,20 +103,23 @@ body
 	& > footer
 		border-top: var(--border-style)
 
+main
+	padding: 0 var(--link-pad)
+
+.container
+	width: 100%
+
 .banner
 	padding: var(--layout-pad)
 
-main
-	margin: var(--layout-pad)
-
-nav.site-navigation
+nav[aria-label='Site Navigation']
 	& li
 		list-style: none
 	& ul
 		margin: 0
 		padding: 0
 
-nav.site-navigation a
+nav[aria-label='Site Navigation'] a
 , .articles footer > a
 	display: block
 	border: var(--border-style)
@@ -92,7 +127,7 @@ nav.site-navigation a
 .articles footer > a
 	text-align: center
 
-nav.site-navigation a
+nav[aria-label='Site Navigation'] a
 , #search
 , .articles footer > a
 	padding: var(--link-pad)
@@ -109,17 +144,19 @@ form[role='search']
 #search
 	flex: auto
 
-// main
-nav.site-navigation a
+// main navigation
+nav[aria-label='Site Navigation'] a
+	text-transform: capitalize
 	&:focus
 	, &:hover
+		text-transform: none
 		&::before
 			content: 'cd ~/'
 
 body > header
 	font-size: var(--font-size)
 
-// animate slow flashing cursor
+// animate slow pulsating cursor
 body > header
 , .title
 	& a:focus
@@ -156,10 +193,52 @@ code[class*='language-']
 , pre[class*='language-']
 	tab-size: 2
 
+// table style
+.numerical-data
+	text-align: right
+
+// special caption
+dl.data-summary
+	& > dt
+	, & > dd
+		display: inline
+		& + dt::before
+			content: '\A'
+			white-space: pre
+	& > dd
+		margin-left: 0
+		&::before
+			content: ': '
+
+// regular form
+.form-input
+	margin-left: 0
+	list-style: none
+	display: flex
+	flex-flow: column
+	align-items: stretch
+	& input
+	, & button
+		padding: var(--link-pad)
+		width: 100%
+	& li + li
+		margin-top: var(--link-pad)
+
 // animation
 @keyframes pulse
 	to
 		color: transparent
+
+// utility
+.visuallyhidden
+	border: 0
+	clip: rect(0 0 0 0)
+	height: 1px
+	margin: -1px
+	overflow: hidden
+	padding: 0
+	position: absolute
+	width: 1px
 
 // media queries
 @media (min-width: 30em)
@@ -167,32 +246,39 @@ code[class*='language-']
 		& > header
 			font-size: larger
 	.container
-		margin: 0 var(--layout-pad)
+		padding: 0 var(--layout-pad)
 	.articles
-		margin: -var(--link-pad)
+		margin: var(--neg-link-pad)
 		& > section
 			margin: var(--link-pad)
 	header .title
 		text-align: left
 	header > .container
-	, nav.site-navigation
-	, nav.site-navigation ul
+	, nav[aria-label='Site Navigation']
+	, nav[aria-label='Site Navigation'] ul
 	, .articles
 		display: flex
 		flex-flow: row wrap
 	header > .container
-	, nav.site-navigation
-	, nav.site-navigation ul
+	, nav[aria-label='Site Navigation']
+	, nav[aria-label='Site Navigation'] ul
 		align-items: baseline
 		& > *
 			flex: auto
 	.articles > *
 		flex: 1 1 20em
-	nav.site-navigation form
+	nav[aria-label='Site Navigation'] form
 		align-self: stretch
 	object[type='image/svg+xml']
 		float: left
 		max-width: 15em
+	.form-input
+		flex-flow: row wrap
+		align-items: flex-end
+		& > li
+			flex: auto
+		& > li + li
+			margin-top: unset
 	.group::after
 		content: ''
 		display: table
@@ -201,8 +287,13 @@ code[class*='language-']
 @media (min-width: 44em)
 	.container
 		margin: auto
-	.container
-	, main
+		padding: initial
 		width: calc(100% * 21 / 22)
-	main
-		margin: var(--layout-pad) auto
+	article
+		max-width: 42em
+		margin: auto
+
+@media (min-width: 52em)
+	article
+		font-size: calc(100% * 7 / 6)
+		max-width: 42em

@@ -1,36 +1,35 @@
 extends layout.pug
+mixin feature(href, title, link)
+	section
+		header: h3: a(href=href)= title
+		.group
+			block
+		footer: a(href=href)= link
 block banner
 	section.banner
-		img(class='logo' src='//placeimg.com/300/300/tech' alt='')
-		h1.title: a(href='#') marsano:~/Home$
+		img(class='logo' src='image/banner.jpg' alt='')
+		h1.title: a(href='#') marsano:~/home$
 		span.tagline Experiments in Front End Design
 block content
 	header: h2 Feature Articles
 	.articles
-		section
-			header: h3: a(href='powershell-remoting') Client Certificate-based PowerShell Remoting
-			.group
-				object(type='image/svg+xml' data='image/powershell-logo.svg' tabindex='-1')
-				p
-					| Since the mid 1990s, 
-					abbr(title='Secure Shell') SSH
-					|  (Secure Shell) users have long enjoyed the security of remote logins based on public-key authentication instead of transmitting passwords.
-					| This article explains how to configure a similar setup between Windows computers with PowerShell Remoting.
-					| No domain membership required.
-			footer: a(href='powershell-remoting') Never transmit passwords again!
-		section
-			header: h3: a(href='dynamic-nameserver') OpenWrt &amp; Dynamic Nameserver
-			.group
-				object(type='image/svg+xml' data='image/lede-logo.svg' tabindex='-1')
-				p
-					| Various Dynamic 
-					abbr(title='Domain Name System') DNS
-					|  (Domain Name System) services provide global domain names you may use to connect to a single computer in your home-based network.
-					| With a free domain registration and recycled hardware, however, you can setup your own dynamic nameserver to provide globally resolvable records for all devices connected to your home-based network.
-			footer: a(href='dynamic-nameserver') Provide yourself free domain name service.
-		section
-			header: h3: a(href='git-usage') Using git
-			.group
-				object(type='image/svg+xml' data='image/git-logo.svg' tabindex='-1')
-				p My notes on using the concurrent version control system, git.
-			footer: a(href='git-usage') Use git
+		+feature('powershell-remoting.html', 'Client Certificate-based PowerShell Remoting', 'Never transmit passwords again!')
+			object(type='image/svg+xml' data='image/powershell-logo.svg' tabindex='-1')
+			p.
+				Since the mid 1990s, #[abbr(title='Secure Shell') SSH] (Secure Shell) users have long enjoyed the security of remote logins based on public-key authentication instead of transmitting passwords.
+				This article explains how to configure a similar setup between Windows computers with PowerShell Remoting.
+				No domain membership required.
+		+feature('dynamic-nameserver.html', 'OpenWrt & Dynamic Nameserver', 'Provide yourself free domain name service.')
+			object(type='image/svg+xml' data='image/lede-logo.svg' tabindex='-1')
+			p.
+				Various Dynamic #[abbr(title='Domain Name System') DNS]  (Domain Name System) services provide global domain names you may use to connect to a single computer in your home-based network.
+				With a free domain registration and recycled hardware, however, you can setup your own dynamic nameserver to provide globally resolvable records for all devices connected to your home-based network.
+		+feature('euclidean-algorithm.html', 'Euclidean Algorithm', 'Try the demo')
+			//- object(type='image/svg+xml' data='image/git-logo.svg' tabindex='-1')
+			include include/euclidean-algorithm.pug
+			p.
+				The Euclidean Algorithm is a highly efficient process for computing the greatest common divisor of a set of integers.
+				It is also one of the earliest studies in computational complexity, and was found only to require a logarithmic number of steps per input size.
+				In our interactive demonstration, you can see the number of steps increase only modestly as provided integers increase.
+block script
+	script(src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-MML-AM_CHTML')
