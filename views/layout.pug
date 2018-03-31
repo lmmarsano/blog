@@ -24,7 +24,7 @@ html(xmlns='http://www.w3.org/1999/xhtml' lang='en')
 		block title
 			title marsano:~#{locals.title ? '/' + locals.title : ''}$
 		block style
-	body
+	body.scripting-unavailable
 		//-
 			main title & navigation with search bar
 			for accessibility, set current page attribute as appropriate
@@ -42,8 +42,8 @@ html(xmlns='http://www.w3.org/1999/xhtml' lang='en')
 							+navStub('articles')
 						form(role='search')
 							//- label(for='search')
-							input(id='search' type='search' name='search' placeholder='Search' aria-label='Search')
-							button(class='search') 🔍︎
+							input(id='search' type='search' name='search' placeholder='Search')
+							button(class='search' aria-labelledby='search') 🔍︎
 		block banner
 		main.container(role='main' id=locals.title)
 			block content

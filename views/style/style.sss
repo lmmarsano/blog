@@ -229,7 +229,10 @@ dl.data-summary
 	to
 		color: transparent
 
-// utility
+// accessibility
+[aria-hidden=true]
+	display: none
+
 .visuallyhidden
 	border: 0
 	clip: rect(0 0 0 0)
@@ -239,6 +242,11 @@ dl.data-summary
 	padding: 0
 	position: absolute
 	width: 1px
+
+// progressive enhancement
+.scripting-unavailable .scripting-required
+, .scripting-available .scripting-prohibited
+	display: none
 
 // media queries
 @media (min-width: 30em)

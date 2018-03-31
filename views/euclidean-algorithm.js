@@ -11,24 +11,28 @@ class Demo {
 		if ('demo' in Demo) {
 			return Demo.demo
 		}
-		// shorthand access to template slots
 		Demo.demo = this
-		this.demo = clearElement(document.getElementById('demo'))
-		this.demo.appendChild(getTemplate('demoContent'))
-		this.form = document.querySelector('#demo form')
-		this.a = document.getElementById('a')
-		this.b = document.getElementById('b')
+		// shorthand access to section, form, input fields, and result slots
 		this.cleanField = new Set(['a', 'b'])
+		for (let key of [ 'demo'
+		                , 'euclideanInput'
+		                , 'a'
+		                , 'b'
+		                , 'results'
+		                , 'aValue'
+		                , 'bValue'
+		                , 'answer'
+		                , 'stepCount'
+		                , 'euclideanData'
+		                ]) {
+			this[key] = document.getElementById(key)
+		}
+		// shorthand access to template slots
 		this._step = getTemplate('step')
 		for (let key of ['dividend', 'divisor', 'remainder']) {
 			this[key] = this._step.querySelector(`.${key}`)
 		}
-		this.marker = getTemplate('marker').lastChild
-		this.caption = getTemplate('caption')
-		this.captionAnswer = this.caption.querySelector('.answer')
-		this.captionA = this.caption.querySelector('.a-value')
-		this.captionB = this.caption.querySelector('.b-value')
-		this.captionStepCount = this.caption.querySelector('.step-count')
+		this._marker = getTemplate('marker').lastChild
 	}
 	step(modulo) {
 		for (let key of ['dividend', 'divisor', 'remainder']) {
@@ -38,38 +42,31 @@ class Demo {
 	}
 	updateResponse() {
 		// respond to user submission
-		// clear data or attach new data container
-		if (this.response) {
-			this.data = clearElement(this.data)
-			this.answer = clearElement(this.answer)
-		} else {
-			this.demo.appendChild(getTemplate('response'))
-			this.response = document.getElementById('euclidean-process')
-			this.data = document.getElementById('euclidean-data')
-			this.answer = document.getElementById('euclidean-answer')
-		}
-		// fill data container
-		let data = document.createDocumentFragment()
+		// detach from DOM
+		this.results.remove()
+		// set visible
+		this.results.removeAttribute('aria-hidden')
+		// clear data and get input values
+		let data = this.euclideanData = clearElement(this.euclideanData)
 		  , a = parseInt(this.a.value)
 		  , b = parseInt(this.b.value)
+		// fill data container
 		for (let modulo of new EuclidProcess(a, b)) {
 			data.appendChild(this.step(modulo))
 		}
 		// and caption
-		this.captionA.textContent = a
-		this.captionB.textContent = b
-		this.captionAnswer.textContent = this.marker.textContent = this.divisor.textContent
-		this.captionStepCount.textContent = data.childNodes.length
+		this.aValue.textContent = a
+		this.bValue.textContent = b
+		this.answer.textContent = this._marker.textContent = this.divisor.textContent
+		this.stepCount.textContent = data.childNodes.length
 		// mark answer in data
 		let step = data.lastChild
-		this.replaceCellContent(step, 'divisor', this.marker)
+		this.replaceCellContent(step, 'divisor', this._marker)
 		if (step = step.previousElementSibling) {
-			this.replaceCellContent(step, 'remainder', this.marker)
+			this.replaceCellContent(step, 'remainder', this._marker)
 		}
-		// attach data
-		this.data.appendChild(data)
-		// and caption
-		this.answer.appendChild(this.caption.cloneNode(true))
+		// attach to DOM
+		this.demo.appendChild(this.results)
 	}
 	replaceCellContent(step, className, replacement) {
 		// replaces content of cell given by className in step
@@ -82,7 +79,7 @@ class Demo {
 }
 {
 	let demo = new Demo
-	  , {a, b, cleanField, form} = demo
+	  , {a, b, cleanField, euclideanInput: form} = demo
 	form.addEventListener('focusout', onFocusout)
 	form.addEventListener('input', onInput)
 	form.addEventListener('submit', onSubmit)

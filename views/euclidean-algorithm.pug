@@ -10,36 +10,44 @@ block content
 				#[a(href='//wikipedia.org/wiki/Euclidean_algorithm') The Euclidean Algorithm] is an iterative procedure for calculating the greatest common divisor of 2 integers.
 				With a sequence starting with the 2 integers (the latter non-0), remainders of the previous 2 terms in the sequence are calculated until the last term is 0.
 				The last non-0 term is the greatest common divisor.
-		section#demo
+		section.scripting-prohibited
 			header: h2 Demonstration Not Available
 			p Visit this page with a modern, JavaScript-enabled web browser to try the interactive demonstration.
+		section#demo.scripting-required
+			header: h2 Interactive Demonstration
+			p Provide 2 integers and #[b Calculate] to display steps in the procedure.
+			section
+				header: h3 Input
+				ul
+					li Both integers are required.
+					li At least 1 of them must be non-0.
+				form#euclideanInput
+					ul.form-input
+						li
+							+numberInput('a')
+						li
+							+numberInput('b')
+						li
+							button Calculate
+			section(aria-hidden='true')#results
+				header: h3 Results
+				table
+					caption
+						dl.data-summary
+							dt #[abbr GCD] of #[b#aValue] & #[b#bValue]
+							dd: mark#answer.answer
+							dt Number of steps
+							dd: b#stepCount
+					thead
+						tr
+							th dividend
+							th divisor
+							th remainder
+					tbody#euclideanData.numerical-data
 block script
 	//-
 		templates belong directly under body
 		for progressive enhancement & scripting
-	template#demoContent
-		header: h2 Interactive Demonstration
-		p Provide 2 integers and #[b Calculate] to display steps in the procedure.
-		ul
-			li Both integers are required.
-			li At least 1 of them must be non-0.
-		form
-			ul.form-input
-				li
-					+numberInput('a')
-				li
-					+numberInput('b')
-				li
-					button Calculate
-	template#response
-		table#euclidean-process
-			caption#euclidean-answer
-			thead
-				tr
-					th dividend
-					th divisor
-					th remainder
-			tbody#euclidean-data.numerical-data
 	template#step
 		tr
 			td.dividend
@@ -47,9 +55,3 @@ block script
 			td.remainder
 	template#marker
 		mark.answer
-	template#caption
-		dl.data-summary
-			dt #[abbr GCD] of #[b.a-value] & #[b.b-value]
-			dd: mark.answer
-			dt Number of steps
-			dd: b.step-count
