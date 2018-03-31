@@ -5,8 +5,28 @@ mixin feature(href, title, link)
 		.group
 			block
 		footer: a(href=href)= link
+block style
+	script(type='text/x-mathjax-config').
+		'use strict'
+		MathJax.Hub.Config
+		({ jax:
+		   [ 'input/MathML'
+		   , 'output/CommonHTML'
+		   ]
+		 , extensions:
+		   [ 'mml2jax.js'
+		   , 'MathMenu.js'
+		   , 'MathZoom.js'
+		   , '[a11y]/accessibility-menu.js'
+		   , '[a11y]/explorer.js'
+		   , '[a11y]/auto-collapse.js'
+		   , '[a11y]/collapsible.js'
+		   , '[a11y]/semantic-enrich.js'
+		   ]
+		 })
+	script(src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=MML_CHTML')
 block banner
-	section.banner
+	section.banner(role='banner')
 		img(class='logo' src='image/banner.jpg' alt='')
 		h1.title: a(href='#') marsano:~/home$
 		span.tagline Experiments in Front End Design
@@ -31,5 +51,3 @@ block content
 				The Euclidean Algorithm is a highly efficient process for computing the greatest common divisor of a set of integers.
 				It is also one of the earliest studies in computational complexity, and was found only to require a logarithmic number of steps per input size.
 				In our interactive demonstration, you can see the number of steps increase only modestly as provided integers increase.
-block script
-	script(src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-MML-AM_CHTML')

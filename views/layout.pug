@@ -35,7 +35,7 @@ html(xmlns='http://www.w3.org/1999/xhtml' lang='en')
 						a( href='.'
 						   aria-current=(locals.title === title && 'page')
 						 ) marsano:~/home$
-					nav(aria-label='Site Navigation')
+					nav(role='navigation' aria-label='Site Navigation')
 						ul
 							+navItem(undefined, 'home')
 							+navItem('about')
@@ -47,7 +47,7 @@ html(xmlns='http://www.w3.org/1999/xhtml' lang='en')
 		block banner
 		main.container(role='main' id=locals.title)
 			block content
-		footer
+		footer(role='contentinfo')
 			.container
 				//- social media, github
 				small Created by Luis Marsano.

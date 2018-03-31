@@ -3,6 +3,7 @@ import './script/script'
 import { EuclidProcess } from './script/euclidean'
 import { getTemplate, clearElement } from './script/dom-utility'
 import './style/euclidean-algorithm.sss'
+import './script/form-validation'
 
 class Demo {
 	constructor() {
@@ -17,12 +18,12 @@ class Demo {
 		this.form = document.querySelector('#demo form')
 		this.a = document.getElementById('a')
 		this.b = document.getElementById('b')
-		this.dirtyField = new Set
-		this._step = getTemplate('step').lastElementChild
+		this.cleanField = new Set(['a', 'b'])
+		this._step = getTemplate('step')
 		for (let key of ['dividend', 'divisor', 'remainder']) {
 			this[key] = this._step.querySelector(`.${key}`)
 		}
-		this.marker = getTemplate('marker').lastElementChild
+		this.marker = getTemplate('marker').lastChild
 		this.caption = getTemplate('caption')
 		this.captionAnswer = this.caption.querySelector('.answer')
 		this.captionA = this.caption.querySelector('.a-value')
@@ -40,6 +41,7 @@ class Demo {
 		// clear data or attach new data container
 		if (this.response) {
 			this.data = clearElement(this.data)
+			this.answer = clearElement(this.answer)
 		} else {
 			this.demo.appendChild(getTemplate('response'))
 			this.response = document.getElementById('euclidean-process')
@@ -48,8 +50,8 @@ class Demo {
 		}
 		// fill data container
 		let data = document.createDocumentFragment()
-		  , a = this.a.valueAsNumber
-		  , b = this.b.valueAsNumber
+		  , a = parseInt(this.a.value)
+		  , b = parseInt(this.b.value)
 		for (let modulo of new EuclidProcess(a, b)) {
 			data.appendChild(this.step(modulo))
 		}
@@ -57,9 +59,9 @@ class Demo {
 		this.captionA.textContent = a
 		this.captionB.textContent = b
 		this.captionAnswer.textContent = this.marker.textContent = this.divisor.textContent
-		this.captionStepCount.textContent = data.childElementCount
+		this.captionStepCount.textContent = data.childNodes.length
 		// mark answer in data
-		let step = data.lastElementChild
+		let step = data.lastChild
 		this.replaceCellContent(step, 'divisor', this.marker)
 		if (step = step.previousElementSibling) {
 			this.replaceCellContent(step, 'remainder', this.marker)
@@ -67,7 +69,6 @@ class Demo {
 		// attach data
 		this.data.appendChild(data)
 		// and caption
-		this.answer = clearElement(this.answer)
 		this.answer.appendChild(this.caption.cloneNode(true))
 	}
 	replaceCellContent(step, className, replacement) {
@@ -81,13 +82,14 @@ class Demo {
 }
 {
 	let demo = new Demo
-	  , {a, b, dirtyField, form} = demo
+	  , {a, b, cleanField, form} = demo
 	form.addEventListener('focusout', onFocusout)
+	form.addEventListener('input', onInput)
 	form.addEventListener('submit', onSubmit)
 	function onSubmit(event) {
 		// allow user to enter in any order
-		if (b.valueAsNumber === 0) {
-			[a.valueAsNumber, b.valueAsNumber] = [b.valueAsNumber, a.valueAsNumber]
+		if (parseInt(b.value) === 0) {
+			[a.value, b.value] = [b.value, a.value]
 		}
 		demo.updateResponse()
 	}
@@ -95,20 +97,27 @@ class Demo {
 		// validate form right after focus leaves input
 		// extend Constraints API
 		if (event.target.tagName.toLowerCase() === 'input') {
-			dirtyField.add(event.target.id)
-			if ( dirtyField.has('a')
-			  && dirtyField.has('b')
-			   ) {
-				// special constraint: some field must be non-0
-				if ( EuclidProcess.IsValidInput
-				     (a.valueAsNumber, b.valueAsNumber)
+			cleanField.delete(event.target.id)
+			if (!cleanField.size) {
+				// custom constraint: some field must be non-0
+				if ( parseInt(a.value) === 0
+				  && parseInt(b.value) === 0
 				   ) {
-					b.setCustomValidity('')
-				} else {
 					b.setCustomValidity('Please enter a non-0 integer.')
 				}
+				this.reportValidity()
 			}
-			this.reportValidity()
+		}
+	}
+	function onInput(event) {
+		// clear custom errors when resolved
+		if ( event.target.tagName.toLowerCase() === 'input'
+		  && b.validity.customError
+		  && !( parseInt(a.value) === 0
+		     && parseInt(b.value) === 0
+		      )
+		   ) {
+			b.setCustomValidity('')
 		}
 	}
 }

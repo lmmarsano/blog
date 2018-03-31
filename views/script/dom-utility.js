@@ -22,4 +22,4 @@ function clearElement(element) {
 	element.parentElement.replaceChild(clone, element)
 	return clone
 }
-export {getTemplate, delegateHandler, removeChildren, clearElement}
+export { getTemplate, delegateHandler, removeChildren, clearElement}

@@ -27,11 +27,17 @@ beginning with i = 0, each term in the sequence is a Modulo(r(i), r(i + 1)) inst
 */
 class EuclidProcess {
 	constructor(a, b) {
-		if (b === 0) {
-			if(a === 0) {
-				throw new InvalidArgumentError('a non-0 argument is required', arguments)
+		if ( isFinite(a)
+		  && isFinite(b)
+		   ) {
+			if (b === 0) {
+				if (a === 0) {
+					throw new InvalidArgumentError('a non-0 argument is required', arguments)
+				}
+				[b, a] = [a, b]
 			}
-			[b, a] = [a, b]
+		} else {
+			throw new InvalidArgumentError('both arguments must be finite', arguments)
 		}
 		this.modulo = new Modulo(a, b)
 	}
