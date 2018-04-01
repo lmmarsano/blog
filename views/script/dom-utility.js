@@ -22,4 +22,16 @@ function clearElement(element) {
 	element.parentElement.replaceChild(clone, element)
 	return clone
 }
-export { getTemplate, delegateHandler, removeChildren, clearElement}
+function withDetached(node, action) {
+	const parent = node.parentNode
+	    , next = node.nextSibling
+	parent.removeChild(node)
+	let value = action(node)
+	if (next) {
+		parent.insertBefore(node, next)
+	} else {
+		parent.appendChild(node)
+	}
+	return value
+}
+export { getTemplate, delegateHandler, removeChildren, clearElement, withDetached }

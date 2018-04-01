@@ -1,7 +1,9 @@
 extends layout.pug
 mixin numberInput(name)
+	- let errorID = `${name}-error`
 	label(for=name) #[var= name] (integer)
-	input(required aria-required='true' type='number' name=name id=name).numerical-data
+	input(id=name name=name type='number' required aria-required='true' aria-errormessage=errorID).numerical-data
+	strong(id=errorID).visuallyhidden
 block content
 	article
 		section
@@ -21,14 +23,15 @@ block content
 				ul
 					li Both integers are required.
 					li At least 1 of them must be non-0.
-				form#euclideanInput.form-input
+				form(aria-live='polite')#euclideanInput.form-input
+					//- aria-live must include changing referents
 					.form-element
 						+numberInput('a')
 					.form-element
 						+numberInput('b')
 					.form-element
 						button Calculate
-			section(aria-hidden='true' aria-live='assertive')#results
+			section(aria-hidden='true' aria-live='assertive' aria-atomic='true')#results
 				header: h3 Results
 				table
 					caption

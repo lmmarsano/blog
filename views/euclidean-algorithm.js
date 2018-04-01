@@ -3,9 +3,10 @@ import './script/script'
 import { EuclidProcess } from './script/euclidean'
 import { getTemplate, clearElement } from './script/dom-utility'
 import './style/euclidean-algorithm.sss'
-import './script/form-validation'
+import { onInvalidAria, tryUnsetAriaInvalid } from  './script/form-validation'
 
 class Demo {
+	// app state
 	constructor() {
 		// singleton class
 		if ('demo' in Demo) {
@@ -35,6 +36,7 @@ class Demo {
 		this._marker = getTemplate('marker').lastChild
 	}
 	step(modulo) {
+		// clone a data entry from template
 		for (let key of ['dividend', 'divisor', 'remainder']) {
 			this[key].textContent = modulo[key]
 		}
@@ -80,8 +82,11 @@ class Demo {
 {
 	let demo = new Demo
 	  , {a, b, cleanField, euclideanInput: form} = demo
-	form.addEventListener('focusout', onFocusout)
 	form.addEventListener('input', onInput)
+	form.addEventListener('focusout', onFocusout)
+	/* expose error message to accessibility API
+	   invalid event doesn't bubble; must capture */
+	form.addEventListener('invalid', onInvalidAria, true)
 	form.addEventListener('submit', onSubmit)
 	function onSubmit(event) {
 		// allow user to enter in any order
@@ -116,5 +121,6 @@ class Demo {
 		   ) {
 			b.setCustomValidity('')
 		}
+		tryUnsetAriaInvalid(event)
 	}
 }

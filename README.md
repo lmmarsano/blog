@@ -15,6 +15,12 @@ The colors meet [WCAG color contrast standards](//www.w3.org/TR/WCAG20/#visual-a
 
 ### Class/ID Selectors
 
+- `.scripting-`{`available`, `unavailable`, `required`, `prohibited`}
+  1. together, these implement progressive enhancement
+	 - a script replaces class `scripting-available` with `scripting-unavailable` in the `body` element
+	 - this switches the `display` for `.scripting-required` and `.scripting-prohibited` elements
+- `.visuallyhidden`
+  1. conceal assistive content (eg, replicas of visual-only content) from sight
 - `.container`
   1. wraps section content to
 	 - allow section to horizontally fill the page
@@ -43,8 +49,13 @@ All `.js` files under [views](views) are custom.
   3. one of which is iterable (implements a generator function with `for` iteration)
 - [views/script/code-brush.js](views/script/code-brush.js)
   1. imports and customizes a library
+- [views/script/form-validation.js](views/script/form-validation.js)
+  1. defines reportValidity polyfill
+  2. defines functions to integrate the Constraint API with ARIA error reporting
 - [views/script/dom-utility.js](views/script/dom-utility.js)
   1. defines & exports convenience functions for DOM manipulation
+- [views/script/dom-polyfill.js](views/script/dom-polyfill.js)
+  1. defines a polyfill for replacing tokens
 - [views/script/script.js](views/script/script.js)
   1. defines an onSubmit function used to cancel all form submissions (no backend)
 
@@ -52,7 +63,8 @@ Scripts directly under [views](views) feature page-specific code.
 
 - [views/euclidean-algorithm.js](views/euclidean-algorithm.js) implements
   1. a class to manage the form and response
-  2. custom form validation integrated with the native [Constraint Validation API](//html.spec.whatwg.org/dev/form-control-infrastructure.html#constraints)
+  2. custom form validation integrated with the native [Constraint Validation API](//html.spec.whatwg.org/dev/form-control-infrastructure.html#constraints) & [ARIA](//www.w3.org/TR/wai-aria-1.1/)
+	 - tested against [ChromeVox](//chrome.google.com/webstore/detail/chromevox/kgejglhpjiefppelpmljglcjbhoiplfn)
 
 ## Comments
 
