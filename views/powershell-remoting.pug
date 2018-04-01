@@ -123,13 +123,13 @@ block content
 					header: h4#about-certificates About Certificates
 					p
 						| Setup employs #[a(href='//en.wikipedia.org/wiki/X.509') X.509] public key certificates, so understanding them is vital for remediation and success.
-						| Systems dependant on certificates require #[em verifiable] certificates that are #[em trusted], #[em valid], and #[em operable].
+						| Systems dependent on certificates require #[em verifiable] certificates that are #[em trusted], #[em valid], and #[em operable].
 					p X.509 binds assertions about a public key pair to a public key through a cryptographically signed certificate bearing the assertions and the public key. Assertions include
 					ul
 						li names for the subject (key owner) and issuer (certificate signer)
 						li usage qualifiers
 						li validity period
-					p These assertions are trusted only if signatures trace back to a trusted source. Trust typically follows a heirarchy. Each certificate bears a signature of an authority, whose certificate also bears a signature. This recursion produces a chain of signatures terminating with a self-signed certificate of a root authority. Ultimately, the verifier either trusts the root or it does not: acceptance descends accordingly. Specifically,
+					p These assertions are trusted only if signatures trace back to a trusted source. Trust typically follows a hierarchy. Each certificate bears a signature of an authority, whose certificate also bears a signature. This recursion produces a chain of signatures terminating with a self-signed certificate of a root authority. Ultimately, the verifier either trusts the root or it does not: acceptance descends accordingly. Specifically,
 					ul
 						li a self-signed certificate is trusted when trust is preset
 						li any other certificate is trusted when the signer hasn’t revoked it, and the signer’s certificate is trusted.
@@ -157,7 +157,7 @@ block content
 						dd 1 web client certificate
 					p The root authority signs all certificates. As sensible security, private keys, especially the root authority’s, should be guarded.
 					p
-						| Windows manages certificates by scattering them in registry keys presented as Certificate Stores to management consoles (#[code certlm.msc] & #[code certmgr.msc]) and PowerShell drives (#[code Cert:]).
+						| Windows manages certificates by scattering them in registry keys presented as Certificate Stores to management consoles (#[code.language-powershell certlm.msc] & #[code.language-powershell certmgr.msc]) and PowerShell drives (#[code.language-powershell Cert:]).
 						| These certificate stores preset trust and control certificate operations.
 						| To each server’s #[em machine] certificate stores, we’ll install operatively appropriate certificates.
 					dl
@@ -171,11 +171,11 @@ block content
 				section
 					header: h4#preparation Preparation
 					p
-						| To facilitate setup and reduce typing, I’ve prepared a #[a(href='//gist.github.com/lmmarsano/30bdbf6a6e91bf4d0488f65edc531af1') script] and #[a(href='//www.powershellgallery.com/packages/CustomPKI/') module]: the module extends #[code New-SelfSignedCertificate] with friendlier parameters to add subject alternative names and extended key usage extensions to certificates.
+						| To facilitate setup and reduce typing, I’ve prepared a #[a(href='//gist.github.com/lmmarsano/30bdbf6a6e91bf4d0488f65edc531af1') script] and #[a(href='//www.powershellgallery.com/packages/CustomPKI/') module]: the module extends #[code.language-powershell New-SelfSignedCertificate] with friendlier parameters to add subject alternative names and extended key usage extensions to certificates.
 						| From PowerShell, you’ll need to download the script and run it inline (dot-source it).
 					pre
 						code.language-powershell.
-							Start-BitsTransfer -Source //gist.githubusercontent.com/lmmarsano/30bdbf6a6e91bf4d0488f65edc531af1/raw/certutil.ps1
+							Start-BitsTransfer -Source https://gist.githubusercontent.com/lmmarsano/30bdbf6a6e91bf4d0488f65edc531af1/raw/certutil.ps1
 							. .\certutil.ps1
 					p If the module is missing, the script will offer to install it: please accept and rerun the script inline. Alternatively, you may install the module
 					pre
@@ -194,7 +194,7 @@ block content
 						dt NotAfter
 						dd date & time validity ends
 					p
-						| The provided #[code New-ValidityInterval] function returns these dates as a reusable hash object computed from #[code -Start] (optional: defaults to today) and #[code -YearsDuration].
+						| The provided #[code.language-powershell New-ValidityInterval] function returns these dates as a reusable hash object computed from #[code.language-powershell -Start] (optional: defaults to today) and #[code.language-powershell -YearsDuration].
 					pre
 						code.language-powershell $commonArgs = New-ValidityInterval -YearsDuration 10
 					ol
@@ -204,11 +204,13 @@ block content
 								| Choose a name, organization, your #[a(href='//www.iso.org/obp/ui/#search/code/') 2-letter country code], and run the commands
 							pre
 								code.language-powershell.
-									$rootca = New-RootCACertificate -CommonName CustomRoot -Organization CustomOrg -Country US @commonArgs
+									$rootca = New-RootCACertificate -CommonName CustomRoot `
+									                                -Organization CustomOrg `
+									                                -Country US @commonArgs
 									Export-PrivateCertificate -Cert $rootca
 									$commonArgs.RootCA = $rootca
 							p
-								| We set #[code RootCA] in #[code $commonArgs] to sign all remaining certificates.
+								| We set #[code.language-powershell RootCA] in #[code.language-powershell $commonArgs] to sign all remaining certificates.
 						li
 							p Server Certificates
 							p For each server, create a certificate bearing its hostname and all its domain names.
@@ -219,15 +221,20 @@ block content
 									host-1
 									⋮
 									host-n
-									'@) | % { Export-PrivateCertificate -Remove -Cert (New-ServerCertificate -HostName $_,('{0}.suffix' -f $_),localhost @commonArgs) }
+									'@) | % {
+										Export-PrivateCertificate -Remove -Cert (
+											New-ServerCertificate -HostName $_,('{0}.suffix' -f $_),localhost `
+											                      @commonArgs
+										)
+									}
 							p
-								| For each server #[code host-i], the above creates a certificate listing its domain names
+								| For each server #[code host-#[var i]], the above creates a certificate listing its domain names
 							ul
-								li host-i
-								li host-i.suffix
+								li host-#[var i]
+								li host-#[var i].suffix
 								li localhost
 							p
-								| in the Subject Alternative Name extension, and exports this certificate and private key to the file #[code host-i.p12].
+								| in the Subject Alternative Name extension, and exports this certificate and private key to the file #[code.language-powershell host-#[var i].p12].
 								| Adapt the above to suite your needs.
 							ol
 								li
@@ -241,10 +248,10 @@ block content
 										code.language-powershell.
 											PS C:\> Get-NetAdapter
 
-											Name                      InterfaceDescription                    ifIndex Status       LinkSpeed
-											----                      --------------------                    ------- ------       ---------
-											Ethernet                  Realtek PCIe GBE Family Controller           10 Disconnected     0 bps
-											Wi-Fi                     Ralink RT5390R 802.11bgn Wi-Fi Adapter       14 Up             72 Mbps
+											Name     InterfaceDescription                    ifIndex Status       LinkSpeed
+											----     --------------------                    ------- ------       ---------
+											Ethernet Realtek PCIe GBE Family Controller           10 Disconnected     0 bps
+											Wi-Fi    Ralink RT5390R 802.11bgn Wi-Fi Adapter       14 Up             72 Mbps
 
 											PS C:\> Get-NetIPAddress -InterfaceIndex 14 | % { Resolve-DnsName -Name $_.IPAddress } | Select-Object -ExpandProperty NameHost | Sort-Object -Unique
 											hostname.suffix
@@ -253,7 +260,7 @@ block content
 							p
 								| For each user, create a certificate bearing all their local usernames on all servers: each username appears as a Subject Alternative Name #[abbr UPN] (User Principal Name) field consisting of
 								|
-								em username
+								var username
 								code @localhost
 								| .
 							pre
@@ -267,26 +274,26 @@ block content
 									Export-Certificate -Cert $client -Type P7B -FilePath client.p7b
 									$client | % { Export-PrivateCertificate -Cert $_ -Remove }
 							p
-								code New-ClientCertificate
+								code.language-powershell New-ClientCertificate
 								|
 								| adds the suffix and attaches the appropriate field. For users with multiple names, the
 								|
-								code -User
+								code.language-powershell -User
 								|
 								| parameter accepts a list. The above bundles all public certificates into a bundle file
 								|
-								code client.p7b
+								code.language-powershell client.p7b
 								| . For each user
 								|
-								code user-i
+								code user-#[var i]
 								| , it exports their certificate with private key to
 								|
-								code user-i.pk12
+								code.language-powershell user-#[var i].pk12
 								| . Adapt the above to suit your needs.
 							ol
 								li Username Lookup
-							pre
-								code.language-powershell [System.Environment]::UserName
+									pre
+										code.language-powershell [System.Environment]::UserName
 				section
 					header: h4#inspection Inspection
 					ul
@@ -304,10 +311,10 @@ block content
 						li
 							p Stores
 							p
-								| PowerShell has the #[a(href='//docs.microsoft.com/powershell/module/microsoft.powershell.security/providers/certificate-provider') Certificate drive] #[code Cert:].
-								| Browse with usual cmdlets such as #[code Get-ChildItem].
-								| Alternatively, open the consoles #[code certlm.msc], #[code certmgr.msc].
-								| Unless you specified otherwise, all certificates were created in your personal store #[code Cert:\CurrentUser\My\].
+								| PowerShell has the #[a(href='//docs.microsoft.com/powershell/module/microsoft.powershell.security/providers/certificate-provider') Certificate drive] #[code.language-powershell Cert:].
+								| Browse with usual cmdlets such as #[code.language-powershell Get-ChildItem].
+								| Alternatively, open the consoles #[code.language-powershell certlm.msc], #[code.language-powershell certmgr.msc].
+								| Unless you specified otherwise, all certificates were created in your personal store #[code.language-powershell Cert:\CurrentUser\My\].
 							pre
 								code.language-powershell.
 									PS C:\> Get-ChildItem -Path Cert:\CurrentUser\My\
@@ -333,7 +340,7 @@ block content
 								| The best command for the task is
 								|
 
-								code certutil
+								code.language-powershell certutil
 								| .
 							pre
 								code.language-powershell.
@@ -470,7 +477,7 @@ block content
 						li
 							p Correct Certificate Fields & Extensions
 							p.
-								These samples from #[code certutil] exemplify correct certificates.
+								These samples from #[code.language-powershell certutil] exemplify correct certificates.
 								Ensure your certificates feature similar fields and extensions.
 							ul
 								li
@@ -588,13 +595,13 @@ block content
 					p
 						| On each server, install it’s private key and the public certificates. For server
 						|
-						em host-i
+						em host-#[var i]
 						| , run a PowerShell console as an administrator, and do
 					pre
 						code.language-powershell.
 							. .\certutil.ps1
 							$rootca = Import-RootCACertificate -FilePath .\root.cert
-							$server = Import-ServerCertificate -FilePath .\host-i.p12
+							$server = Import-ServerCertificate -FilePath .\host-#[var i].p12
 							Import-ClientCertificate -FilePath .\client.p7b
 					p This installs certificates and keys to corresponding locations:
 					dl
@@ -618,7 +625,7 @@ block content
 					p
 						| Alternatively, pass a more specific list of groups and users to the
 						|
-						code -Member
+						code.language-powershell -Member
 						|
 						| parameter. Some groups are preassigned access:
 					pre
@@ -635,34 +642,42 @@ block content
 					p
 						| The user
 						|
-						em user-j
+						em user-#[var j]
 						|
 						| installs their private key to a smart card or onto their client computer (from their ordinary console)
 					pre
-						code.language-powershell $client = Import-PfxCertificate -CertStoreLocation Cert:\CurrentUser\My\ -FilePath .\user-j.p12
+						code.language-powershell.
+							$client = Import-PfxCertificate -CertStoreLocation Cert:\CurrentUser\My\ `
+							                                -FilePath .\user-#[var j].p12
 				section
 					header: h4#usage--optimization Usage & Optimization
 					p
 						| Remote servers will accept user passwords and client certificates. To authenticate with certificate, an authorized user connecting to server
 						|
-						em host-i
+						em host-#[var i]
 						|
 						| would enter from their client console
 					pre
-						code.language-powershell Enter-PSSession -ComputerName host-i -CertificateThumbprint $client.Thumbprint
+						code.language-powershell.
+							Enter-PSSession -ComputerName host-#[var i] `
+							                -CertificateThumbprint $client.Thumbprint
 					p To authenticate with password, the user enters
 					pre
-						code.language-powershell Enter-PSSession -ComputerName host-i
+						code.language-powershell Enter-PSSession -ComputerName host-#[var i]
 					p
 						| A profile script can automate certificate retrieval and set default parameters. I add the following to my profile at
 						|
-						code $PROFILE.CurrentUserAllHosts
+						code.language-powershell $PROFILE.CurrentUserAllHosts
 						| :
 					pre
 						code.language-powershell.
-							$ClientCertificate = Get-ChildItem -Path Cert:\CurrentUser\My -Eku 'Client Authentication' `
-							                   | ? { $_.Verify() -and $_.GetNameInfo([System.Security.Cryptography.X509Certificates.X509NameType]::UpnName, $false) -eq ('{0}@localhost' -f [System.Environment]::UserName) } `
-							                   | Select-Object -First 1
+							$ClientCertificate = Get-ChildItem -Path Cert:\CurrentUser\My `
+							                                   -Eku 'Client Authentication' | ? {
+								$_.Verify() -and $_.GetNameInfo(
+									[System.Security.Cryptography.X509Certificates.X509NameType]::UpnName,
+									$false
+								) -eq ('{0}@localhost' -f [System.Environment]::UserName)
+							} | Select-Object -First 1
 							if ($ClientCertificate) {
 								(-split @'
 							Enter
@@ -674,7 +689,7 @@ block content
 							}
 					p A user can then run
 					pre
-						code.language-powershell Enter-PSSession -ComputerName host-i
+						code.language-powershell Enter-PSSession -ComputerName host-#[var i]
 					p without entering a password: their client certificate is implicitly passed.
 		section
 			header: h2#troubleshooting Troubleshooting
@@ -690,7 +705,7 @@ block content
 				p
 					| Perform validation checks with
 					|
-					code certutil -verifystore
+					code.language-powershell certutil -verifystore
 					| : substituting names as appropriate
 				pre
 					code.language-powershell.
@@ -710,11 +725,14 @@ block content
 				p
 					| Finally, check that
 					|
-					code Cert:\LocalMachine\Root
+					code.language-powershell Cert:\LocalMachine\Root
 					|
 					| has only self-signed certificates: if
 				pre
-					code.language-powershell ($certs = Get-ChildItem -Path Cert:\LocalMachine\Root\ | ? { $_.Issuer -ne $_.Subject })
+					code.language-powershell.
+						($certs = Get-ChildItem -Path Cert:\LocalMachine\Root\ | ? {
+							$_.Issuer -ne $_.Subject
+						})
 				p turns up any results, then move or delete them.
 				pre
 					code.language-powershell $certs | Move-Item -Destination Cert:\LocalMachine\CA\
@@ -729,7 +747,7 @@ block content
 					header: h4#server Server
 					p
 						a(href='#service-config')
-							code Enable-RemotingSSL
+							code.language-powershell Enable-RemotingSSL
 						|
 						| configures a number of system areas: service startup, #[abbr WS-Management] (Web Services-Management), firewall, PowerShell sessions. #[abbr WinRM] (Windows Remote Management) should be running and start automatically.
 					pre
@@ -740,7 +758,7 @@ block content
 							StartType : Automatic
 							Status    : Running
 					p
-						code Get-PSSessionConfiguration
+						code.language-powershell Get-PSSessionConfiguration
 						|
 						| should list these services and permissions.
 					pre
@@ -758,7 +776,9 @@ block content
 					p Firewall should permit WinRM connections.
 					pre
 						code.language-powershell.
-							PS C:\> Get-NetFirewallRule -DisplayGroup 'Windows Remote Management' | ? { $_.Enabled -eq 'True' } | Format-List -Property Name
+							PS C:\> Get-NetFirewallRule -DisplayGroup 'Windows Remote Management' | ? {
+								$_.Enabled -eq 'True'
+							} | Format-List -Property Name
 
 							Name : WINRM-HTTP-In-TCP-NoScope
 							Name : WINRM-HTTPS-In-TCP-NoScope
@@ -778,27 +798,27 @@ block content
 								code.language-powershell.
 									WSManConfig: Microsoft.WSMan.Management\WSMan::localhost\Service
 
-									Type            Name                           SourceOfValue   Value
-									----            ----                           -------------   -----
-									System.String   AllowRemoteAccess                              true
+									Type          Name              SourceOfValue Value
+									----          ----              ------------- -----
+									System.String AllowRemoteAccess               true
 						li
 							p certificate authentication
 							pre
 								code.language-powershell.
 									WSManConfig: Microsoft.WSMan.Management\WSMan::localhost\Service\Auth
 
-									Type            Name                           SourceOfValue   Value
-									----            ----                           -------------   -----
-									System.String   Certificate                                    true
+									Type          Name        SourceOfValue Value
+									----          ----        ------------- -----
+									System.String Certificate               true
 						li
 							p remote shell enablement
 							pre
 								code.language-powershell.
 									WSManConfig: Microsoft.WSMan.Management\WSMan::localhost\Shell
 
-									Type            Name                           SourceOfValue   Value
-									----            ----                           -------------   -----
-									System.String   AllowRemoteShellAccess                         true
+									Type          Name                   SourceOfValue Value
+									----          ----                   ------------- -----
+									System.String AllowRemoteShellAccess               true
 						li
 							p an #[abbr HTTPS] (HyperText Transfer Protocol Secure) listener exists
 							pre
@@ -806,23 +826,23 @@ block content
 							p
 								| the output of
 								|
-								code $listener | Get-ChildItem
+								code.language-powershell $listener | Get-ChildItem
 								|
 								| includes these values
 							pre
 								code.language-powershell.
-									Type            Name                           SourceOfValue   Value
-									----            ----                           -------------   -----
-									System.String   Address                                        *
-									System.String   Transport                                      HTTPS
-									System.String   Port                                           5986
-									System.String   Hostname
-									System.String   Enabled                                        true
-									System.String   URLPrefix                                      wsman
+									Type          Name      SourceOfValue Value
+									----          ----      ------------- -----
+									System.String Address                 *
+									System.String Transport               HTTPS
+									System.String Port                    5986
+									System.String Hostname
+									System.String Enabled                 true
+									System.String URLPrefix               wsman
 							p and a nonempty CertificateThumbprint
 							pre
 								code.language-powershell.
-									System.String   CertificateThumbprint                          B10BF3132772C18EF34B71BEEF969E73CA2FC6E0
+									System.String CertificateThumbprint B10BF3132772C18EF34B71BEEF969E73CA2FC6E0
 							p that matches the server’s own web server certificate
 							pre
 								code.language-powershell $listener | Get-ChildItem | ? { $_.Name -eq 'CertificateThumbprint' } | % { certutil.exe -store my $_.Value }
@@ -833,21 +853,21 @@ block content
 							p
 								| Items output by
 								|
-								code $client | Get-ChildItem
+								code.language-powershell $client | Get-ChildItem
 								|
 								| include values like these
 							pre
 								code.language-powershell.
 									WSManConfig: Microsoft.WSMan.Management\WSMan::localhost\ClientCertificate\ClientCertificate_1346055972
 
-									Type            Name                           SourceOfValue   Value
-									----            ----                           -------------   -----
-									System.String   URI                                            *
-									System.String   Subject                                        username@localhost
-									System.String   Issuer                                         1ABB2AD73583007E9DE803291960146D94AD9A52
-									System.String   UserName                                       username
-									System.String   Enabled                                        true
-									System.String   Password
+									Type          Name     SourceOfValue Value
+									----          ----     ------------- -----
+									System.String URI                    *
+									System.String Subject                username@localhost
+									System.String Issuer                 1ABB2AD73583007E9DE803291960146D94AD9A52
+									System.String UserName               username
+									System.String Enabled                true
+									System.String Password
 							p where each Issuer matches a certificate that signs our client certificates.
 							pre
 								code.language-powershell $client | Get-ChildItem | ? { $_.Name -eq 'Issuer' } | % { certutil.exe -store root $_.Value }
@@ -857,15 +877,15 @@ block content
 				section
 					header: h4#client Client
 					p
-						code Get-ChildItem -Path WSMan:\localhost\Client\Auth\
+						code.language-powershell Get-ChildItem -Path WSMan:\localhost\Client\Auth\
 						|
 						| should show the
 						|
-						code Certificate
+						code.language-powershell Certificate
 						|
 						| key set.
 					pre
 						code.language-powershell.
-							Type            Name                           SourceOfValue   Value
-							----            ----                           -------------   -----
-							System.String   Certificate                                    true
+							Type          Name        SourceOfValue Value
+							----          ----        ------------- -----
+							System.String Certificate               true
