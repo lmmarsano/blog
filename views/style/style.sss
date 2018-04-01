@@ -47,6 +47,20 @@ ol
 	padding: 0
 	margin-left: var(--layout-pad)
 
+// description list
+dt
+	font-weight: bold
+dt
+, dt + dd
+	display: inline
+dd
+	margin-left: 0
+* + dt::before
+	content: ''
+	display: block
+dt + dd::before
+	content: ': '
+
 // tables
 table
 	margin: auto
@@ -59,11 +73,8 @@ th
 thead
 	text-transform: capitalize
 
-caption
-	caption-side: bottom
-
-dt
-	font-weight: bold
+pre
+	white-space: pre-wrap
 
 :visited
 	color: var(--visited-color)
@@ -197,23 +208,13 @@ code[class*='language-']
 .numerical-data
 	text-align: right
 
-// special caption
-dl.data-summary
+.data-summary
+	margin: 0
 	& > dt
-	, & > dd
-		display: inline
-		& + dt::before
-			content: '\A'
-			white-space: pre
-	& > dd
-		margin-left: 0
-		&::before
-			content: ': '
+		font-weight: unset
 
 // regular form
 .form-input
-	margin-left: 0
-	list-style: none
 	display: flex
 	flex-flow: column
 	align-items: stretch
@@ -221,7 +222,9 @@ dl.data-summary
 	, & button
 		padding: var(--link-pad)
 		width: 100%
-	& li + li
+	& > *
+		flex: auto
+	& > :not(:first-child)
 		margin-top: var(--link-pad)
 
 // animation

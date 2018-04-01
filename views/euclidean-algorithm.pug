@@ -21,20 +21,19 @@ block content
 				ul
 					li Both integers are required.
 					li At least 1 of them must be non-0.
-				form#euclideanInput
-					ul.form-input
-						li
-							+numberInput('a')
-						li
-							+numberInput('b')
-						li
-							button Calculate
-			section(aria-hidden='true')#results
+				form#euclideanInput.form-input
+					.form-element
+						+numberInput('a')
+					.form-element
+						+numberInput('b')
+					.form-element
+						button Calculate
+			section(aria-hidden='true' aria-live='assertive')#results
 				header: h3 Results
 				table
 					caption
 						dl.data-summary
-							dt #[abbr GCD] of #[b#aValue] & #[b#bValue]
+							dt #[abbr(title='Greatest Common Divisor') GCD] of #[b#aValue] & #[b#bValue]
 							dd: mark#answer.answer
 							dt Number of steps
 							dd: b#stepCount
