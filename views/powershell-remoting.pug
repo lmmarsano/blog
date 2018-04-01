@@ -1,4 +1,6 @@
 extends layout.pug
+mixin term(name, alternative)
+	a(href='#' + name)= alternative ? alternative : name
 block content
 	article
 		nav(role='navigation' aria-label='Article Navigation')
@@ -123,29 +125,36 @@ block content
 					header: h4#about-certificates About Certificates
 					p
 						| Setup employs #[a(href='//en.wikipedia.org/wiki/X.509') X.509] public key certificates, so understanding them is vital for remediation and success.
-						| Systems dependent on certificates require #[em verifiable] certificates that are #[em trusted], #[em valid], and #[em operable].
+						| Systems dependent on certificates require #[+term('verifiable')] certificates that are #[+term('trusted')], #[+term('valid')], and #[+term('operable')].
 					p X.509 binds assertions about a public key pair to a public key through a cryptographically signed certificate bearing the assertions and the public key. Assertions include
 					ul
 						li names for the subject (key owner) and issuer (certificate signer)
 						li usage qualifiers
 						li validity period
-					p These assertions are trusted only if signatures trace back to a trusted source. Trust typically follows a hierarchy. Each certificate bears a signature of an authority, whose certificate also bears a signature. This recursion produces a chain of signatures terminating with a self-signed certificate of a root authority. Ultimately, the verifier either trusts the root or it does not: acceptance descends accordingly. Specifically,
+					p.
+						These assertions are #[dfn(id='trusted') trusted] only if signatures trace back to a #[+term('trusted')] source.
+						#[+term('trusted', 'Trust')] typically follows a hierarchy.
+						Each certificate bears a signature of an authority, whose certificate also bears a signature.
+						This recursion produces a chain of signatures terminating with a self-signed certificate of a root authority.
+						Ultimately, the verifier either #[+term('trusted', 'trusts')] the root or it does not: #[+term('trusted', 'trust')] descends accordingly.
+						Specifically,
 					ul
-						li a self-signed certificate is trusted when trust is preset
-						li any other certificate is trusted when the signer hasn’t revoked it, and the signer’s certificate is trusted.
-					p Moreover, if all certificates in the trusted chain have active validity periods, then they are valid.
-					p Finally, if a valid certificate’s usage qualifiers permit all operations a system needs to commit with it, then the certificate is operable.
+						li a self-signed certificate is #[+term('trusted')] when #[+term('trusted', 'trust')] is preset
+						li any other certificate is #[+term('trusted')] when the signer hasn’t revoked it, and the signer’s certificate is #[+term('trusted')].
+					p Moreover, if all certificates in the #[+term('trusted')] chain have active validity periods, then they are #[dfn(id='valid') valid].
+					p Certificates for which a system has sufficient information (eg, signing certificates, revocation information) to compute #[+term('trusted', 'trust')] are #[dfn(id='verifiable') verifiable].
+					p Finally, if a #[+term('valid')] certificate’s usage qualifiers permit all operations a system needs it for, then the certificate is #[dfn(id='operable') operable].
 				section
 					header: h4#objectives Objectives
 					p Our certificates will achieve requisites as follows.
 					dl
-						dt verifiability
+						dt #[+term('verifiable', 'verifiability')]
 						dd on every computer, install all authority certificates of our signature chains; this will be our single root authority certificate.
-						dt trust
+						dt #[+term('trusted', 'trust')]
 						dd preset each computer to trust our root authority certificate; we won’t revoke any certificates.
-						dt validity
+						dt #[+term('valid', 'validity')]
 						dd assign our certificates active validity periods.
-						dt operability
+						dt #[+term('operable', 'operability')]
 						dd assign our certificates correct usage qualifiers.
 					p For our public key infrastructure, we will create
 					dl
