@@ -52,6 +52,8 @@ All `.js` files under [views](views) are custom.
 - [views/script/form-validation.js](views/script/form-validation.js)
   1. defines reportValidity polyfill
   2. defines functions to integrate the Constraint API with ARIA error reporting
+- [views/script/dom-menu.js](views/script/dom-menu.js)
+  1. define accessible fly-out menus through aria-expanded attribute
 - [views/script/dom-utility.js](views/script/dom-utility.js)
   1. defines & exports convenience functions for DOM manipulation
 - [views/script/dom-polyfill.js](views/script/dom-polyfill.js)

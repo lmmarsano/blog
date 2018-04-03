@@ -5,12 +5,6 @@ mixin navItem(title, label)
 		a( href=(title ? `${title}.html` : '.')
 		   aria-current=(locals.title === title && 'page')
 		 )= label
-mixin navStub(title, label)
-	- label ? null : (label = title)
-	li.nav-item
-		a( href='#'
-		   aria-current=(locals.title === title && 'page')
-		 )= label
 html(xmlns='http://www.w3.org/1999/xhtml' lang='en')
 	- let locals = htmlWebpackPlugin.options.locals
 	head
@@ -39,7 +33,12 @@ html(xmlns='http://www.w3.org/1999/xhtml' lang='en')
 						ul
 							+navItem(undefined, 'home')
 							+navItem('about')
-							+navStub('articles')
+							li(role='menu' aria-haspopup='menu' aria-expanded='false').nav-submenu
+								a(href='#') articles
+								ul
+									+navItem('powershell-remoting')
+									+navItem('dynamic-nameserver')
+									+navItem('euclidean-algorithm')
 						form(role='search')
 							//- label(for='search')
 							input(id='search' type='search' name='search' placeholder='Search')

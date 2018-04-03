@@ -1,6 +1,4 @@
 @import url('https://cdn.jsdelivr.net/npm/normalize.css')
-// web fonts
-
 // base
 :root
 	// optimize color contrast for accessibility
@@ -123,14 +121,15 @@ main
 .banner
 	padding: var(--layout-pad)
 
-nav[aria-label='Site Navigation']
+[aria-label='Site Navigation']
 	& li
+	, & ul
 		list-style: none
 	& ul
 		margin: 0
 		padding: 0
 
-nav[aria-label='Site Navigation'] a
+[aria-label='Site Navigation'] a
 , .articles footer > a
 	display: block
 	border: var(--border-style)
@@ -138,10 +137,17 @@ nav[aria-label='Site Navigation'] a
 .articles footer > a
 	text-align: center
 
-nav[aria-label='Site Navigation'] a
+[aria-label='Site Navigation'] a
 , #search
 , .articles footer > a
 	padding: var(--link-pad)
+
+// submenu
+[aria-haspopup]
+	& > ul
+		display: none
+	&[aria-expanded=true] > ul
+		display: unset
 
 button
 , input
@@ -156,16 +162,13 @@ form[role='search']
 	flex: auto
 
 // main navigation
-nav[aria-label='Site Navigation'] a
+[aria-label='Site Navigation']
 	text-transform: capitalize
-	&:focus
-	, &:hover
+	& a:focus
+	, & a:hover
 		text-transform: none
 		&::before
 			content: 'cd ~/'
-
-body > header
-	font-size: var(--font-size)
 
 // animate slow pulsating cursor
 body > header
@@ -265,20 +268,26 @@ code[class*='language-']
 	header .title
 		text-align: left
 	header > .container
-	, nav[aria-label='Site Navigation']
-	, nav[aria-label='Site Navigation'] ul
+	, [aria-label='Site Navigation']
+	, [aria-label='Site Navigation'] > ul
 	, .articles
 		display: flex
 		flex-flow: row wrap
 	header > .container
-	, nav[aria-label='Site Navigation']
-	, nav[aria-label='Site Navigation'] ul
+	, [aria-label='Site Navigation']
+	, [aria-label='Site Navigation'] > ul
 		align-items: baseline
 		& > *
 			flex: auto
+	[aria-haspopup=menu][aria-expanded=true]
+		position: relative
+		& > ul
+			position: absolute
+			left: 0
+			background: black
 	.articles > *
 		flex: 1 1 20em
-	nav[aria-label='Site Navigation'] form
+	[aria-label='Site Navigation'] form
 		align-self: stretch
 	object[type='image/svg+xml']
 		float: left

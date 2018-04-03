@@ -67,7 +67,9 @@ function config(env) {
 	           , '.tsx'
 	           ]
 	         }
-	       , devtool: 'source-map'
+	       , devtool: isProd
+	                ? 'source-map'
+	                : 'cheap-module-eval-source-map'
 	       , devServer:
 	         { contentBase: buildDir
 	         , hot: !isProd

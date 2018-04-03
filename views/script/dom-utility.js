@@ -2,10 +2,21 @@
 function getTemplate(id) {
 	return document.getElementById(id).content
 }
-function delegateHandler(selector, handler) {
-	return function tagNameHandler(event) {
-		if (event.target.matches(selector)) {
-			handler(event.target)
+function delegateSelectorHandler(selector) {
+	return function delegator(handler) {
+		return function selectorHandler(event) {
+			if (event.target.matches(selector)) {
+				handler(event.target)
+			}
+		}
+	}
+}
+function delegateClosestHandler(selector) {
+	return function delegator(handler) {
+		return function closestHandler(event) {
+			if (this === event.target.closest(selector)) {
+				return handler.call(this, event)
+			}
 		}
 	}
 }
@@ -34,4 +45,4 @@ function withDetached(node, action) {
 	}
 	return value
 }
-export { getTemplate, delegateHandler, removeChildren, clearElement, withDetached }
+export { getTemplate, delegateSelectorHandler, delegateClosestHandler, removeChildren, clearElement, withDetached }
