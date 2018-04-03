@@ -85,9 +85,9 @@ Processed files under [docs](docs) strip them, though they may be visible under 
   ```
 
 - run the development server `npm start`
-- alternatively, build `npm run build-dev` and run your own server under the build root `public`, eg
+- alternatively, build `npm run build-dev` and run your own server under the build root `docs`, eg
   ```shell
-  cd public
+  cd docs
   python3 -m http.server
   www-browser http://localhost:8000/
   ```

@@ -11,7 +11,7 @@
     "prismjs": "^1.13.0"
   },
   "devDependencies": {
-    "awesome-typescript-loader": "^5.0.0",
+    "awesome-typescript-loader": "^5.0.0-1",
     "clean-webpack-plugin": "^0.1.19",
     "copy-webpack-plugin": "^4.5.1",
     "css-loader": "",
