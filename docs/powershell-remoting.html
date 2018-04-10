@@ -292,7 +292,7 @@ New
 '@) | % {
 		$PSDefaultParameterValues['{0}-PSSession:CertificateThumbprint' -f $_] = $ClientCertificate.Thumbprint
 	}
-}</code></pre><p>A user can then run</p><pre><code class="language-powershell">Enter-PSSession -ComputerName host-<var>i</var></code></pre><p>without entering a password: their client certificate is implicitly passed.</p></section></section></section><section><header><h2 id="troubleshooting">Troubleshooting</h2></header><section><header><h3 id="certificates">Certificates</h3></header><p><a href="#inspect-cert">Inspect certificates</a>
+}</code></pre><p>A user can then run</p><pre><code class="language-powershell">Enter-PSSession -ComputerName host-<var>i</var></code></pre><p>without entering a password: their client certificate is implicitly passed.</p></section></section></section><section><header><h2 id="troubleshooting">Troubleshooting</h2></header><section><header><h3 id="certificates">Certificates</h3></header><p><a href="#inspection">Inspect certificates</a>
 to check</p><ul><li>certificate fields and extensions</li><li>certificate store locations</li></ul><p>Perform validation checks with
 <code class="language-powershell">certutil -verifystore</code>: substituting names as appropriate</p><pre><code class="language-powershell">certutil -verifystore root rootname
 certutil -verifystore my hostname
